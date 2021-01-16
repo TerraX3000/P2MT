@@ -11,6 +11,19 @@
   <div class="w3-rest w3-margin w3-padding-large">
     <a href="/masterschedule/download" target="blank"><i class="fa fa-download fa-fw"></i>Download Master Schedule</a>
   </div>
+  <div class="w3-third">
+    <p class="w3-medium"> &nbsp</p>
+  </div>
+  <div class="w3-third w3-center">
+    <form action="{{ url_for('masterSchedule_bp.displayMasterSchedule') }}" method="POST">
+      <input class="w3-radio" type="radio" id="display_fall_semester" {{displayFallSemester}} name="displaySemester"
+        value="Fall">
+      <label for="display_fall_semester">Fall</label>
+      <input class="w3-radio" type="radio" id="display_spring_semester" {{displaySpringSemester}} name="displaySemester"
+        value="Spring">
+      <label for="display_spring_semester">Spring</label>
+    </form>
+  </div>
 </div>
 
 {{ macro_display_flashed_messages() }}
@@ -92,7 +105,7 @@
 </table>
 
 <!-- Search Filter -->
-<script type="text/javascript" src="{{ url_for('static', filename="js/searchFilters.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/searchFilters.js') }}"></script>
 <script>
   // Note: the table does not include the header rows
   var tableBody = document.getElementById('filteredTable');
@@ -100,6 +113,22 @@
   searchFilter.firstNameCellPosition = 3;
   searchFilter.lastNameCellPosition = 4;
   searchFilter.addEventListener('keyup', filterFirstLastNames);
+</script>
+
+<script>
+  // Set event listeners for radio buttons to display semester
+  var display_fall_semester = document.getElementById("display_fall_semester")
+  display_fall_semester.addEventListener("click", function () { submitDisplaySemester(event); });
+  var display_spring_semester = document.getElementById("display_spring_semester")
+  display_spring_semester.addEventListener("click", function () { submitDisplaySemester(event); });
+
+
+  // Submit displaySemester form
+  function submitDisplaySemester(event) {
+    trigger_field = document.getElementById(event.target.id);
+    form = trigger_field.form;
+    form.submit();
+  }
 </script>
 
 {% endblock content %}

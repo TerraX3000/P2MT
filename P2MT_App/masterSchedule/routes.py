@@ -27,15 +27,42 @@ def download_MasterSchedule():
     return downloadClassSchedule(getCurrentSchoolYear(), getCurrentSemester())
 
 
-@masterSchedule_bp.route("/masterschedule")
+@masterSchedule_bp.route("/masterschedule", methods=["GET", "POST"])
 @login_required
 def displayMasterSchedule():
     printLogEntry("Running displayMasterSchedule()")
+    if request.method == "POST":
+        if request.form["displaySemester"] == "Fall":
+            displayYear = 2020
+            displaySemester = "Fall"
+            displayFallSemester = "checked"
+            displaySpringSemester = ""
+        elif request.form["displaySemester"] == "Spring":
+            displayYear = 2021
+            displaySemester = "Spring"
+            displayFallSemester = ""
+            displaySpringSemester = "checked"
+    else:
+        displayYear = getCurrentSchoolYear()
+        displaySemester = getCurrentSemester()
+        if displaySemester == "Fall":
+            displayFallSemester = "checked"
+            displaySpringSemester = ""
+        else:
+            displayFallSemester = ""
+            displaySpringSemester = "checked"
+
     ClassSchedules = ClassSchedule.query.filter(
-        ClassSchedule.learningLab == False
+        ClassSchedule.learningLab == False,
+        ClassSchedule.schoolYear == displayYear,
+        ClassSchedule.semester == displaySemester,
     ).order_by(ClassSchedule.chattStateANumber.desc())
     return render_template(
-        "masterschedule.html", title="Master Schedule", ClassSchedules=ClassSchedules,
+        "masterschedule.html",
+        title="Master Schedule",
+        ClassSchedules=ClassSchedules,
+        displayFallSemester=displayFallSemester,
+        displaySpringSemester=displaySpringSemester,
     )
 
 
