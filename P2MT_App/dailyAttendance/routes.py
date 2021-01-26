@@ -1,7 +1,12 @@
 from flask import render_template, redirect, url_for, flash, Blueprint
 from flask_login import login_required
 from P2MT_App import db
-from P2MT_App.models import DailyAttendanceLog
+from P2MT_App.models import (
+    DailyAttendanceLog,
+    ClassAttendanceLog,
+    ClassSchedule,
+    Student,
+)
 from P2MT_App.main.utilityfunctions import printLogEntry
 from P2MT_App.dailyAttendance.dailyAttendance import downloadDailyAttendanceLog
 
@@ -39,3 +44,27 @@ def delete_DailyAttendanceLog(log_id):
 def download_DailyAttendanceLog():
     printLogEntry("download_DailyAttendanceLog() function called")
     return downloadDailyAttendanceLog()
+
+
+@dailyAttendance_bp.route("/classabsencelog")
+@login_required
+def displayClassAbsenceLog():
+    printLogEntry("displayClassAbsenceLog() function called")
+    ClassAbsenceLogs = DailyAttendanceLog.query.order_by(
+        DailyAttendanceLog.absenceDate.desc()
+    )
+
+    classAttendanceFixedFields = (
+        ClassAttendanceLog.query.filter(ClassAttendanceLog.attendanceCode == "U")
+        .join(ClassSchedule)
+        .join(ClassSchedule.Student)
+        .order_by(ClassSchedule.startTime, ClassSchedule.className, Student.lastName)
+        .all()
+    )
+
+    return render_template(
+        "classabsencelog.html",
+        title="Class Absence Log",
+        DailyAttendanceLogs=ClassAbsenceLogs,
+        classAttendanceFixedFields=classAttendanceFixedFields,
+    )
