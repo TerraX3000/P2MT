@@ -58,7 +58,11 @@ def displayClassAbsenceLog():
         ClassAttendanceLog.query.filter(ClassAttendanceLog.attendanceCode == "U")
         .join(ClassSchedule)
         .join(ClassSchedule.Student)
-        .order_by(ClassSchedule.startTime, ClassSchedule.className, Student.lastName)
+        .order_by(
+            ClassAttendanceLog.classDate.desc(),
+            Student.lastName,
+            ClassSchedule.className,
+        )
         .all()
     )
 
