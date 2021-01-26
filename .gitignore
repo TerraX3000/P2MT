@@ -48,3 +48,4 @@ google_credentials/p2mt_service_account_alpha816.json
 google_credentials/*
 P2MT_App/*.db
 *.code-workspace
+local.env
