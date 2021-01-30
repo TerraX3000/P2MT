@@ -53,6 +53,25 @@ def datetimefilter(value, format="%a %b %-d @ %-I:%M %p"):
     return local_dt.strftime(format)
 
 
+def getAdminSettings(adminSettingsDatabase):
+    """This function creates a dictionary for adminSettings data stored in the database.
+    Currently adminSettings stored the emailModeStatus which is either 'Live' or 'Test'.
+    adminSettings is accessed by calling this dictionary structure:
+    {{ adminSettings['emailModeStatus']}}
+    adminSettings contains data stored in the SQL database which can be
+    used to store information related to app administrative settings.
+    adminSettings is accessible by all templates by referencing
+    the adminSettings dictionary."""
+    emailMode = {True: "Live", False: "Test"}
+    emailModeStatus = (
+        db.session.query(adminSettingsDatabase.enableLiveEmail)
+        .order_by(adminSettingsDatabase.id.desc())
+        .first()
+    )
+    adminSettings = {"emailModeStatus": emailMode[emailModeStatus[0]]}
+    return adminSettings
+
+
 def create_app(config_class):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -81,6 +100,12 @@ def create_app(config_class):
             server_metadata_url=GOOGLE_DISCOVERY_URL,
             client_kwargs={"scope": "openid email profile"},
         )
+
+    from .models import adminSettings as adminSettingsDatabase
+
+    @app.context_processor
+    def setAdminSettingsAppContext():
+        return dict(adminSettings=getAdminSettings(adminSettingsDatabase))
 
     from P2MT_App.main.routes import main_bp
     from P2MT_App.classAttendance.routes import classAttendance_bp
