@@ -50,14 +50,18 @@ def download_DailyAttendanceLog():
 @login_required
 def displayClassAbsenceLog():
     printLogEntry("displayClassAbsenceLog() function called")
-    ClassAbsenceLogs = DailyAttendanceLog.query.order_by(
-        DailyAttendanceLog.absenceDate.desc()
-    )
 
     classAttendanceFixedFields = (
-        ClassAttendanceLog.query.filter(ClassAttendanceLog.attendanceCode == "U")
+        db.session.query(ClassAttendanceLog, ClassSchedule, DailyAttendanceLog)
+        .select_from(ClassAttendanceLog)
         .join(ClassSchedule)
         .join(ClassSchedule.Student)
+        .outerjoin(
+            DailyAttendanceLog,
+            (ClassAttendanceLog.classDate == DailyAttendanceLog.absenceDate)
+            & (ClassSchedule.chattStateANumber == DailyAttendanceLog.chattStateANumber),
+        )
+        .filter(ClassAttendanceLog.attendanceCode == "U",)
         .order_by(
             ClassAttendanceLog.classDate.desc(),
             Student.lastName,
@@ -69,6 +73,5 @@ def displayClassAbsenceLog():
     return render_template(
         "classabsencelog.html",
         title="Class Absence Log",
-        DailyAttendanceLogs=ClassAbsenceLogs,
         classAttendanceFixedFields=classAttendanceFixedFields,
     )
