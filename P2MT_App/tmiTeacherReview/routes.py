@@ -2,7 +2,12 @@ from flask import render_template, flash, request, Blueprint
 from flask_login import login_required
 from P2MT_App import db
 from P2MT_App.main.utilityfunctions import printLogEntry
-from P2MT_App.models import Student, ClassSchedule, ClassAttendanceLog
+from P2MT_App.models import (
+    Student,
+    ClassSchedule,
+    ClassAttendanceLog,
+    DailyAttendanceLog,
+)
 from P2MT_App.classAttendance.forms import (
     updateClassAttendanceForm,
     updateStudentAttendanceForm,
@@ -113,13 +118,63 @@ def displayTmiTeacherReview():
         .all()
     )
 
+    classAttendanceFixedFields = (
+        db.session.query(ClassAttendanceLog, ClassSchedule, DailyAttendanceLog)
+        .select_from(ClassAttendanceLog)
+        .filter(
+            ClassAttendanceLog.classDate >= startTmiPeriod,
+            ClassAttendanceLog.classDate <= endTmiPeriod,
+        )
+        .filter(
+            (ClassAttendanceLog.attendanceCode == None)
+            | (ClassAttendanceLog.attendanceCode != "P")
+        )
+        .join(ClassSchedule)
+        .join(ClassSchedule.Student)
+        .filter(
+            ClassSchedule.teacherLastName == tmiTeacherReviewForm.teacherName.default,
+            ClassSchedule.learningLab == False,
+        )
+        .outerjoin(
+            DailyAttendanceLog,
+            (ClassAttendanceLog.classDate == DailyAttendanceLog.absenceDate)
+            & (ClassSchedule.chattStateANumber == DailyAttendanceLog.chattStateANumber),
+        )
+        .order_by(ClassAttendanceLog.classDate)
+        .order_by(Student.lastName)
+        .all()
+    )
+
+    # classAttendanceFixedFields = (
+    #     db.session.query(ClassAttendanceLog, ClassSchedule, DailyAttendanceLog)
+    #     .select_from(ClassAttendanceLog)
+    #     .join(ClassSchedule)
+    #     .join(ClassSchedule.Student)
+    #     .outerjoin(
+    #         DailyAttendanceLog,
+    #         (ClassAttendanceLog.classDate == DailyAttendanceLog.absenceDate)
+    #         & (ClassSchedule.chattStateANumber == DailyAttendanceLog.chattStateANumber),
+    #     )
+    #     .filter(
+    #         ClassAttendanceLog.classDate >= startTmiPeriod,
+    #         ClassAttendanceLog.classDate <= endTmiPeriod,
+    #     )
+    #     .filter(ClassAttendanceLog.assignTmi == True)
+    #     .order_by(
+    #         Student.lastName, ClassAttendanceLog.classDate, ClassSchedule.className
+    #     )
+    #     .all()
+    # )
+
     # Retrieve updated student attendance fields from database
     for studentAttendance in classAttendanceFixedFields:
         studentAttendanceForm = updateStudentAttendanceForm()
-        studentAttendanceForm.log_id = studentAttendance.id
-        studentAttendanceForm.attendanceCode = studentAttendance.attendanceCode
-        studentAttendanceForm.comment = studentAttendance.comment
-        studentAttendanceForm.assignTmi = studentAttendance.assignTmi
+        studentAttendanceForm.log_id = studentAttendance.ClassAttendanceLog.id
+        studentAttendanceForm.attendanceCode = (
+            studentAttendance.ClassAttendanceLog.attendanceCode
+        )
+        studentAttendanceForm.comment = studentAttendance.ClassAttendanceLog.comment
+        studentAttendanceForm.assignTmi = studentAttendance.ClassAttendanceLog.assignTmi
         studentAttendanceForm.updateFlag = ""
         print(
             "ROSTER ",
