@@ -2,7 +2,13 @@ from flask import render_template, flash, request, Blueprint, redirect, url_for
 from flask_login import login_required
 from P2MT_App import db
 from P2MT_App.main.utilityfunctions import printLogEntry
-from P2MT_App.models import Student, ClassSchedule, ClassAttendanceLog, InterventionLog
+from P2MT_App.models import (
+    Student,
+    ClassSchedule,
+    ClassAttendanceLog,
+    InterventionLog,
+    DailyAttendanceLog,
+)
 from P2MT_App.main.referenceData import getCurrent_Start_End_Tmi_Dates
 from datetime import date
 from P2MT_App.tmiFinalApproval.tmiFinalApproval import (
@@ -34,13 +40,20 @@ def displayTmiFinalApproval():
     db.session.commit()
 
     classAttendanceFixedFields = (
-        ClassAttendanceLog.query.filter(
+        db.session.query(ClassAttendanceLog, ClassSchedule, DailyAttendanceLog)
+        .select_from(ClassAttendanceLog)
+        .join(ClassSchedule)
+        .join(ClassSchedule.Student)
+        .outerjoin(
+            DailyAttendanceLog,
+            (ClassAttendanceLog.classDate == DailyAttendanceLog.absenceDate)
+            & (ClassSchedule.chattStateANumber == DailyAttendanceLog.chattStateANumber),
+        )
+        .filter(
             ClassAttendanceLog.classDate >= startTmiPeriod,
             ClassAttendanceLog.classDate <= endTmiPeriod,
         )
         .filter(ClassAttendanceLog.assignTmi == True)
-        .join(ClassSchedule)
-        .join(ClassSchedule.Student)
         .order_by(
             Student.lastName, ClassAttendanceLog.classDate, ClassSchedule.className
         )

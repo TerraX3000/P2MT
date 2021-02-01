@@ -155,7 +155,8 @@
 
         <th>Class:</th>
         <th>Date:</th>
-        <th>Attendance:</th>
+        <th>Class Attendance:</th>
+        <th>School Attendance:</th>
         <th>Teacher:</th>
         <th></th>
         <th></th>
@@ -170,9 +171,11 @@
         <td></td>
 
         <td>{{ studentFixedFields.ClassSchedule.className }}</td>
-        <td>{{ studentFixedFields.classDate.strftime('%a %b %-d') }}</td>
-        <td>{{ studentFixedFields.attendanceCode }}</td>
+        <td>{{ studentFixedFields.ClassAttendanceLog.classDate.strftime('%a %b %-d') }}</td>
+        <td>{{ studentFixedFields.ClassAttendanceLog.attendanceCode }}</td>
+        <td>{{ studentFixedFields.DailyAttendanceLog.attendanceCode }}</td>
         <td>{{ studentFixedFields.ClassSchedule.teacherLastName }}</td>
+
         <td></td>
         <td></td>
       </tr>
@@ -225,6 +228,6 @@
   };
 </script>
 
-<script type="text/javascript" src="{{ url_for('static', filename="js/activateAccordion.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/activateAccordion.js') }}"></script>
 
 {% endblock content %}
