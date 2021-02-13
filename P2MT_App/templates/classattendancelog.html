@@ -59,8 +59,9 @@
         <th scope="col">Comment</th>
       </tr>
     </thead>
-    <tbody>
-      {% for studentAttendanceForm, studentFixedFields in zip(classAttendanceForm.classMembers, classAttendanceFixedFields) %}
+    <tbody id="filteredTable">
+      {% for studentAttendanceForm, studentFixedFields in zip(classAttendanceForm.classMembers,
+      classAttendanceFixedFields) %}
       {{ studentAttendanceForm.hidden_tag() }}
       {% if studentFixedFields.ClassSchedule.learningLab == False %}
       <tr data-rowType="infoTab" data-tabName="ClassAttendance">
@@ -81,7 +82,8 @@
       </tr>
       {% endif %}
       {% endfor %}
-      {% for studentAttendanceForm, studentFixedFields in zip(classAttendanceForm.classMembers, classAttendanceFixedFields) %}
+      {% for studentAttendanceForm, studentFixedFields in zip(classAttendanceForm.classMembers,
+      classAttendanceFixedFields) %}
 
       {% if studentFixedFields.ClassSchedule.learningLab == True %}
       <tr data-rowType="infoTab" data-tabName="LearningLabAttendance" style="visibility:collapse">
@@ -110,11 +112,11 @@
 
 
 <!-- Script for page tabs -->
-<script type="text/javascript" src="{{ url_for('static', filename="js/pageTables.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/pageTables.js') }}"></script>
 
 
 <!-- Search Filter -->
-<script type="text/javascript" src="{{ url_for('static', filename="js/searchFilters.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/searchFilters.js') }}"></script>
 <script>
   var tableBody = document.getElementById('filteredTable');
   var searchFilter = document.getElementById('searchFilter');
