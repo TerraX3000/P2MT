@@ -13,6 +13,7 @@ from P2MT_App.main.referenceData import (
     getApiKey,
 )
 from P2MT_App.main.utilityfunctions import printLogEntry
+from flask import flash
 from flask_login import current_user
 import json
 
@@ -134,16 +135,8 @@ def sendEmail(email_to, email_cc, emailSubject, emailContent):
         print("System Mode = Test. Sending email to", current_user.email)
         email_to = current_user.email
         email_cc = current_user.email
-    print(
-        "Email Details - to:",
-        email_to,
-        "cc:",
-        email_cc,
-        "bcc:",
-        email_bcc,
-        "subject:",
-        emailSubject,
-    )
+    email_details = f"Email Details - to: {email_to} cc: {email_cc} bcc: {email_bcc} subject: {emailSubject}"
+    print(email_details)
     email_sender = "phase2team@students.hcde.org"
     message = create_message(
         email_sender, email_to, email_cc, email_bcc, emailSubject, emailContent
@@ -153,5 +146,10 @@ def sendEmail(email_to, email_cc, emailSubject, emailContent):
     print("service =", service)
     sent = send_message(service, "phase2team@students.hcde.org", message)
     print("sent message =", sent)
+    if sent is None:
+        flash_message = f"Error: Unable to send email.  Review {email_details}"
+        flash(flash_message, "error")
+    else:
+        flash("Email notification has been sent!", "success")
     return
 

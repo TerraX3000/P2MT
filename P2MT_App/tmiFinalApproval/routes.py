@@ -122,7 +122,6 @@ def sendTmiNotification(log_id):
         chattStateANumber=log.chattStateANumber,
     )
     db.session.commit()
-    flash("Email notification for individual student has been sent!", "success")
     return redirect(url_for("tmiFinalApproval_bp.displayTmiFinalApproval"))
 
 
