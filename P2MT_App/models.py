@@ -5,8 +5,11 @@ from flask_login import UserMixin
 # Flask-Login helper to retrieve a user from our db
 @login_manager.user_loader
 def load_user(user_id):
-    print("Running load_user() with ", user_id)
-    return FacultyAndStaff.query.filter(FacultyAndStaff.id == user_id).first()
+    user = FacultyAndStaff.query.filter(FacultyAndStaff.id == user_id).first()
+    print(
+        f"Running load_user() with user id: {user_id}, name: {user.firstName} {user.lastName}"
+    )
+    return user
 
 
 class Student(db.Model):
