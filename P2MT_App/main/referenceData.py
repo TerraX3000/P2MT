@@ -228,10 +228,11 @@ def getParentEmails(chattStateANumber):
         .first()
     )
     parentEmailList = []
-    for email in parentEmails:
-        if len(email) == 0 or email == None:
-            continue
-        parentEmailList.append(email)
+    if parentEmails:
+        for email in parentEmails:
+            if len(email) == 0 or email == None:
+                continue
+            parentEmailList.append(email)
     return parentEmailList
 
 
