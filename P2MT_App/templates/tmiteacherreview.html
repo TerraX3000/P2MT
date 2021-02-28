@@ -86,7 +86,17 @@
           {{ subfield.label }}
           {% endfor %}
         </td>
-        <td> {{ studentFixedFields.DailyAttendanceLog.attendanceCode }}</td>
+        <td>
+          {% if studentFixedFields.DailyAttendanceLog %}
+          {{ studentFixedFields.DailyAttendanceLog.attendanceCode }}
+          <div class="w3-dropdown-hover w3-light-gray">
+            <button class="w3-button"><i class="w3-large fa fa-sticky-note-o" aria-hidden="true"></i></button>
+            <div class="w3-dropdown-content w3-bar-block">
+              <a class="w3-bar-item w3-button">{{studentFixedFields.DailyAttendanceLog.comment }}</a>
+            </div>
+          </div>
+          {% endif %}
+        </td>
         <td>
           {{ studentAttendanceForm.comment(class="w3-input", size="30") }}
         </td>
