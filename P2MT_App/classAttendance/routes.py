@@ -2,7 +2,12 @@ from flask import render_template, flash, request, Blueprint
 from flask_login import login_required
 from P2MT_App import db
 from P2MT_App.main.utilityfunctions import printLogEntry
-from P2MT_App.models import Student, ClassSchedule, ClassAttendanceLog
+from P2MT_App.models import (
+    Student,
+    ClassSchedule,
+    ClassAttendanceLog,
+    DailyAttendanceLog,
+)
 from P2MT_App.classAttendance.forms import (
     updateClassAttendanceForm,
     updateStudentAttendanceForm,
@@ -122,15 +127,24 @@ def displayClassAttendanceLog():
     # If "All Classes" is selected, display all clases
     # Otherwise, only display classes for selecetd class
     if classAttendanceForm.className.default == "All Classes":
-        print("All classes seleceted")
+        print("All classes selected")
         classAttendanceFixedFields = (
-            ClassAttendanceLog.query.filter(
-                ClassAttendanceLog.classDate == classDateTime
-            )
+            db.session.query(ClassAttendanceLog, ClassSchedule, DailyAttendanceLog)
+            .select_from(ClassAttendanceLog)
             .join(ClassSchedule)
             .join(ClassSchedule.Student)
+            .outerjoin(
+                DailyAttendanceLog,
+                (ClassAttendanceLog.classDate == DailyAttendanceLog.absenceDate)
+                & (
+                    ClassSchedule.chattStateANumber
+                    == DailyAttendanceLog.chattStateANumber
+                ),
+            )
             .filter(
-                ClassSchedule.teacherLastName == classAttendanceForm.teacherName.default
+                ClassAttendanceLog.classDate == classDateTime,
+                ClassSchedule.teacherLastName
+                == classAttendanceForm.teacherName.default,
             )
             .order_by(
                 ClassSchedule.startTime, ClassSchedule.className, Student.lastName
@@ -139,15 +153,24 @@ def displayClassAttendanceLog():
         )
     else:
         classAttendanceFixedFields = (
-            ClassAttendanceLog.query.filter(
-                ClassAttendanceLog.classDate == classDateTime
-            )
+            db.session.query(ClassAttendanceLog, ClassSchedule, DailyAttendanceLog)
+            .select_from(ClassAttendanceLog)
             .join(ClassSchedule)
             .join(ClassSchedule.Student)
-            .filter(
-                ClassSchedule.teacherLastName == classAttendanceForm.teacherName.default
+            .outerjoin(
+                DailyAttendanceLog,
+                (ClassAttendanceLog.classDate == DailyAttendanceLog.absenceDate)
+                & (
+                    ClassSchedule.chattStateANumber
+                    == DailyAttendanceLog.chattStateANumber
+                ),
             )
-            .filter(ClassSchedule.className == classAttendanceForm.className.default)
+            .filter(
+                ClassAttendanceLog.classDate == classDateTime,
+                ClassSchedule.teacherLastName
+                == classAttendanceForm.teacherName.default,
+                ClassSchedule.className == classAttendanceForm.className.default,
+            )
             .order_by(
                 ClassSchedule.startTime, ClassSchedule.className, Student.lastName
             )
@@ -156,10 +179,13 @@ def displayClassAttendanceLog():
 
     # Retrieve updated student attendance fields from database
     for studentAttendance in classAttendanceFixedFields:
+        print(studentAttendance)
         studentAttendanceForm = updateStudentAttendanceForm()
-        studentAttendanceForm.log_id = studentAttendance.id
-        studentAttendanceForm.attendanceCode = studentAttendance.attendanceCode
-        studentAttendanceForm.comment = studentAttendance.comment
+        studentAttendanceForm.log_id = studentAttendance.ClassAttendanceLog.id
+        studentAttendanceForm.attendanceCode = (
+            studentAttendance.ClassAttendanceLog.attendanceCode
+        )
+        studentAttendanceForm.comment = studentAttendance.ClassAttendanceLog.comment
         studentAttendanceForm.updateFlag = ""
         print(
             "ROSTER ",
