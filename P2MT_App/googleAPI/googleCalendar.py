@@ -88,10 +88,10 @@ def addCalendarEvent(
         # ],
         "reminders": {
             "useDefault": False,
-            "overrides": [
-                {"method": "email", "minutes": 24 * 60},
-                {"method": "popup", "minutes": 10},
-            ],
+            # "overrides": [
+            #     {"method": "email", "minutes": 24 * 60},
+            #     {"method": "popup", "minutes": 10},
+            # ],
         },
     }
     print("New calendar event details:", event)
