@@ -212,7 +212,11 @@
 </table>
 
 <div class="w3-container w3-gray w3-center">
-  <p class="w3-large"><strong>Schedule</strong></p>
+  {% for student in students %}
+  <p class="w3-large"><strong>Schedule <a
+        href="https://calendar.google.com/calendar/embed?src={{ student.googleCalendarId }}" target="_blank"><i
+          class="fa fa-external-link" aria-hidden="true"></i></a></strong></p>
+  {% endfor %}
 </div>
 <table class="w3-table w3-bordered w3-striped w3-hoverable">
   <thead>

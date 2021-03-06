@@ -95,14 +95,15 @@ def displayStudents():
 @studentInfo_bp.route("/students/info", methods=["GET", "POST"])
 @login_required
 def displayStudentInfo():
-    # Display student info page with the following info:
-    # Student name, email, house, year of graduation
-    # Parent info
-    # Absences
-    # Class attendance (when not present)
-    # Interventions
-    # Learning labs
-    # Class schedule
+    """Display student info page with the following info:
+    Student name, email, house, year of graduation
+    Parent info
+    Absences
+    Class attendance (when not present)
+    Interventions
+    Learning labs
+    Class schedule
+    """
     printLogEntry("Running displayStudentInfo()")
     chattStateANumber = request.args["chattStateANumber"]
     print("chattStateANumber = ", chattStateANumber)
