@@ -87,14 +87,43 @@ def getEmailModeStatus():
     return emailModeStatus[0]
 
 
-def getTeachers():
-    teacherValueLabelTupleList = (
-        db.session.query(ClassSchedule.teacherLastName, ClassSchedule.teacherLastName)
-        .filter(ClassSchedule.campus == "STEM School")
-        .distinct()
-        .order_by(ClassSchedule.teacherLastName)
-        .all()
-    )
+def getTeachers(campus="STEM School", use_staff_list=False):
+    """Returns list of tuples of teacher last names.  By default, the teacher names are for teachers of STEM School classes.  
+    
+    Use the optional "use_staff_list" parameter as follows:
+
+    use_staff_list=True returns a list of all persons in the P2MT Staff Member list and ignores the optional 'campus' parameter.
+
+    Use the optional "campus" parameter as follows:
+
+    campus="STEM School" returns a lits of teachers for STEM School classes.
+
+    campus="Chattanooga State" returns a list of teachers for Chattanooga State classes.
+
+    campus="All" returns a list of teachers for all classes regardless of campus.
+    """
+    if use_staff_list:
+        teacherValueLabelTupleList = (
+            db.session.query(FacultyAndStaff.lastName, FacultyAndStaff.lastName)
+            .filter(FacultyAndStaff.lastName != "System")
+            .distinct()
+            .order_by(FacultyAndStaff.lastName)
+        )
+    else:
+        teacherValueLabelTupleList = (
+            db.session.query(
+                ClassSchedule.teacherLastName, ClassSchedule.teacherLastName
+            )
+            .distinct()
+            .order_by(ClassSchedule.teacherLastName)
+        )
+        if campus == "STEM School" or campus == "Chattanooga State":
+            teacherValueLabelTupleList = teacherValueLabelTupleList.filter(
+                ClassSchedule.campus == campus
+            )
+        elif campus == "All":
+            pass
+
     # insert a blank option into the list as the default choice
     # Note: need to convert the tuple to a list and then back to a tuple
     teacherList = list(teacherValueLabelTupleList)
@@ -103,14 +132,30 @@ def getTeachers():
     return teacherValueLabelTupleList
 
 
-def getClassNames():
+def getClassNames(campus="STEM School"):
+    """Returns list of class names.  By default, the class names are for STEM School classes.  
+    
+    Use the optional "campus" parameter as follows:
+
+    campus="STEM School" returns a list of STEM School classes.
+
+    campus="Chattanooga State" returns a list of Chattanooga State classes.
+
+    campus="All" returns a list of all classes regardless of campus.
+    """
     classNameValueLabelTupleList = (
         db.session.query(ClassSchedule.className, ClassSchedule.className)
-        .filter(ClassSchedule.campus == "STEM School")
         .distinct()
         .order_by(ClassSchedule.className)
-        .all()
     )
+    if campus == "STEM School" or campus == "Chattanooga State":
+        classNameValueLabelTupleList = classNameValueLabelTupleList.filter(
+            ClassSchedule.campus == campus
+        )
+    elif campus == "All":
+        pass
+
+    # classNameValueLabelTupleList = 'classes'
     # insert a blank option into the list as the default choice
     # Note: need to convert the tuple to a list and then back to a tuple
     classList = list(classNameValueLabelTupleList)

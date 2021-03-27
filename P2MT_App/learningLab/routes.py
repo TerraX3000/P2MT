@@ -55,9 +55,9 @@ def displayLearningLab():
     # Pre-set semester to current semester
     addLearningLabDetails.semester.choices = getSemester()
     addLearningLabDetails.semester.data = getCurrentSemester()
-    addLearningLabDetails.teacherName.choices = getTeachers()
+    addLearningLabDetails.teacherName.choices = getTeachers(use_staff_list=True)
     addLearningLabDetails.studentName.choices = getStudents()
-    addLearningLabDetails.className.choices = getClassNames()
+    addLearningLabDetails.className.choices = getClassNames(campus="All")
     addLearningLabDetails.classDays.choices = getClassDayChoices()
     addLearningLabDetails.classDays2.choices = getClassDayChoices()
     addLearningLabDetails.classDays3.choices = getClassDayChoices()
