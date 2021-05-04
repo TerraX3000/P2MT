@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="w3-container w3-green w3-row">
+    <div class="w3-third">
+        <h2>{{title}}</h2>
+    </div>
+</div>
+
+<div class="w3-container">
+    <h4>Thank you for using P2MT and congratulations for making it to the end of a very challenging year!
+        I'm glad this app has survived the year as well. My hope was for it to provide some of the
+        features found in the original P2MT app and it seems to have done so fairly well. Still, I know there are
+        areas for improvement. If you have a moment this week, please leave a comment below to share any
+        thoughts on things to improve as well as things that were useful. I'm happy to continue supporting
+        P2MT if it's of use to you.
+
+    </h4>
+</div>
+
+
+<div class="w3-container w3-margin w3-padding">
+    <form action="" method="POST">
+        <fieldset class="w3-container w3-margin w3-hover-border-green">
+            <label class="w3-margin" for="comment"><b>Add Your Comment, Crazy Idea, Dream,
+                    or "The Best Idea Evah" to the List Below (Multiple Entries Permitted!)</b></label>
+            <textarea class="w3-margin w3-input w3-padding" id="comment" name="comment" rows="6" required></textarea>
+            <input class="w3-margin w3-button w3-blue w3-round w3-padding" type="submit" value="Submit">
+        </fieldset>
+    </form>
+</div>
+
+
+<div class="w3-container w3-margin">
+    <table class="w3-table-all">
+        <thead>
+            <tr class="w3-blue">
+                <th>Comment</th>
+                <th>Submitter</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for response in responses %}
+            <tr>
+                <td style="white-space: pre-wrap;">{{response.comment}}</td>
+                <td>{{response.FacultyAndStaff.firstName}} {{response.FacultyAndStaff.lastName}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+
+
+{% endblock content %}

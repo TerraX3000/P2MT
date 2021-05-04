@@ -222,6 +222,9 @@ class FacultyAndStaff(db.Model, UserMixin):
     ClassSchedule = db.relationship(
         "ClassSchedule", backref="FacultyAndStaff", lazy=True
     )
+    SurveyResponse = db.relationship(
+        "SurveyResponse", backref="FacultyAndStaff", lazy=True
+    )
     google_sub = db.Column(db.String(256), nullable=True)
     google_picture = db.Column(db.String(256), nullable=True)
 
@@ -400,3 +403,11 @@ class Pbls(db.Model):
 
     def __repr__(self):
         return f"pbl('{self.id}', '{self.pblName}','{self.className}','{self.schoolYear}','{self.semester}','{self.quarter}')"
+
+
+class SurveyResponse(db.Model):
+    __tablename__ = "SurveyResponse"
+    id = db.Column(db.Integer, primary_key=True)
+    staffID = db.Column(db.Integer, db.ForeignKey("FacultyAndStaff.id"), nullable=False)
+    comment = db.Column(db.String(50000), nullable=True)
+    timestamp = db.Column(db.TIMESTAMP, nullable=False, default=datetime.now())
