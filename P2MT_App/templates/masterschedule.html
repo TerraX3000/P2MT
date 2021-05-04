@@ -28,7 +28,7 @@
 
 {{ macro_display_flashed_messages() }}
 
-<table class="w3-table w3-bordered w3-striped w3-hoverable">
+<table id="datatable" class="w3-table w3-bordered w3-striped w3-hoverable">
   <thead>
     <tr class="w3-blue">
       <th scope="col">Year</th>
@@ -103,6 +103,14 @@
     {% endfor %}
   </tbody>
 </table>
+
+<script>
+  $(document).ready(function () {
+    $('#datatable').DataTable({
+      "lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]]
+    });
+  });
+</script>
 
 <!-- Search Filter -->
 <script type="text/javascript" src="{{ url_for('static', filename='js/searchFilters.js') }}"></script>

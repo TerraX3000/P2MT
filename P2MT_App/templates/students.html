@@ -32,7 +32,7 @@
 
 {{ macro_display_flashed_messages() }}
 
-<table class="w3-table w3-bordered w3-striped w3-hoverable">
+<table id="datatable" class="w3-table w3-bordered w3-striped w3-hoverable">
   <thead>
     <tr class="w3-blue">
       <th scope="col">A#</th>
@@ -82,20 +82,26 @@
             action="{{ url_for('studentInfo_bp.displayStudents') }}" enctype="multipart/form-data">
             {{ dailyAttendanceForm.csrf_token(id="csrfAttendance_" + student.id|string) }}
             <fieldset class="w3-container w3-padding-large w3-hover-border-green">
-              {{ dailyAttendanceForm.chattStateANumber(id="attendanceStudentId_" + student.id|string, value = student.chattStateANumber, class="w3-hide") }}
+              {{ dailyAttendanceForm.chattStateANumber(id="attendanceStudentId_" + student.id|string, value =
+              student.chattStateANumber, class="w3-hide") }}
               <legend class="w3-xlarge">{{student.firstName}} {{student.lastName}}</legend>
               <div class="w3-row-padding">
-                {{ macro_display_formfield(dailyAttendanceForm.absenceDateStart, "w3-half", "absenceDateStart_" + student.id|string) }}
-                {{ macro_display_formfield(dailyAttendanceForm.absenceDateEnd, "w3-half", "absenceDateEnd_" + student.id|string) }}
-                {{ macro_display_formfield(dailyAttendanceForm.attendanceCode, "w3-half", "attendanceCode_" + student.id|string) }}
-                {{ macro_display_formfield(dailyAttendanceForm.comment, "w3-threequarter", "commentAttendance_" + student.id|string) }}
+                {{ macro_display_formfield(dailyAttendanceForm.absenceDateStart, "w3-half", "absenceDateStart_" +
+                student.id|string) }}
+                {{ macro_display_formfield(dailyAttendanceForm.absenceDateEnd, "w3-half", "absenceDateEnd_" +
+                student.id|string) }}
+                {{ macro_display_formfield(dailyAttendanceForm.attendanceCode, "w3-half", "attendanceCode_" +
+                student.id|string) }}
+                {{ macro_display_formfield(dailyAttendanceForm.comment, "w3-threequarter", "commentAttendance_" +
+                student.id|string) }}
               </div>
             </fieldset>
             <footer class="w3-container w3-margin-top w3-white w3-center">
               <div class="w3-bar">
                 <button type="button" class="w3-button w3-large"
                   onclick="document.getElementById('addAttendanceModal{{student.id}}').style.display='none'">Cancel</button>
-                {{ dailyAttendanceForm.submitDailyAttendance(id="submitAttendance_" + student.id|string, class="w3-btn w3-blue w3-large") }}
+                {{ dailyAttendanceForm.submitDailyAttendance(id="submitAttendance_" + student.id|string, class="w3-btn
+                w3-blue w3-large") }}
               </div>
             </footer>
           </form>
@@ -117,21 +123,26 @@
 
             {{ interventionForm.csrf_token(id="csrfIntervention_" + student.id|string) }}
             <fieldset class="w3-container w3-padding-large w3-hover-border-green">
-              {{ interventionForm.chattStateANumber(id="interventionStudentId_" + student.id|string, value = student.chattStateANumber, class="w3-hide") }}
+              {{ interventionForm.chattStateANumber(id="interventionStudentId_" + student.id|string, value =
+              student.chattStateANumber, class="w3-hide") }}
               <legend class="w3-xlarge">{{student.firstName}} {{student.lastName}}</legend>
               <div class="w3-row-padding">
-                {{ macro_display_formfield(interventionForm.interventionType, "w3-half", "interventionType_" + student.id|string) }}
-                {{ macro_display_formfield(interventionForm.interventionLevel, "w3-half", "interventionLevel_" + student.id|string) }}
+                {{ macro_display_formfield(interventionForm.interventionType, "w3-half", "interventionType_" +
+                student.id|string) }}
+                {{ macro_display_formfield(interventionForm.interventionLevel, "w3-half", "interventionLevel_" +
+                student.id|string) }}
                 {{ macro_display_formfield(interventionForm.startDate, "w3-half", "startDate_" + student.id|string) }}
                 {{ macro_display_formfield(interventionForm.endDate, "w3-half", "endDate_" + student.id|string) }}
-                {{ macro_display_formfield(interventionForm.comment, "w3-half", "interventionComment_" + student.id|string) }}
+                {{ macro_display_formfield(interventionForm.comment, "w3-half", "interventionComment_" +
+                student.id|string) }}
               </div>
             </fieldset>
             <footer class="w3-container w3-margin-top w3-white w3-center">
               <div class="w3-bar">
                 <button type="button" class="w3-button w3-large"
                   onclick="document.getElementById('addInterventionModal{{student.id}}').style.display='none'">Cancel</button>
-                {{ interventionForm.submitIntervention(id="submitIntervention_" + student.id|string, class="w3-btn w3-blue w3-large") }}
+                {{ interventionForm.submitIntervention(id="submitIntervention_" + student.id|string, class="w3-btn
+                w3-blue w3-large") }}
               </div>
             </footer>
           </form>
@@ -143,8 +154,17 @@
   </tbody>
 </table>
 
+
+<script>
+  $(document).ready(function () {
+    $('#datatable').DataTable({
+      "lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]]
+    });
+  });
+</script>
+
 <!-- Search Filter -->
-<script type="text/javascript" src="{{ url_for('static', filename="js/searchFilters.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/searchFilters.js') }}"></script>
 <script>
   // Note: the table does not include the header rows
   var tableBody = document.getElementById('filteredTable');

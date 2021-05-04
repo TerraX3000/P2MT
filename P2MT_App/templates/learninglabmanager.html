@@ -12,7 +12,7 @@
     {% endfor %}
   </div>
   {% else %}
-  {{ formfield(class="w3-select  w3-section") }}
+  {{ formfield(class="w3-select w3-section") }}
   {% endif %}
 </div>
 {% endmacro %}
@@ -116,11 +116,21 @@
           {{ macro_display_formfield(addSingleClassSchedule.comment, "w3-half") }}
         </div>
 
-        {{ macro_addTimeAndDays("_addTimeAndDays",addSingleClassSchedule.addTimeAndDays,addSingleClassSchedule.startTime,addSingleClassSchedule.endTime,addSingleClassSchedule.classDays) }}
-        {{ macro_addTimeAndDays("_addTimeAndDays_2",addSingleClassSchedule.addTimeAndDays2,addSingleClassSchedule.startTime2,addSingleClassSchedule.endTime2,addSingleClassSchedule.classDays2) }}
-        {{ macro_addTimeAndDays("_addTimeAndDays_3",addSingleClassSchedule.addTimeAndDays3,addSingleClassSchedule.startTime3,addSingleClassSchedule.endTime3,addSingleClassSchedule.classDays3) }}
-        {{ macro_addTimeAndDays("_addTimeAndDays_4",addSingleClassSchedule.addTimeAndDays4,addSingleClassSchedule.startTime4,addSingleClassSchedule.endTime4,addSingleClassSchedule.classDays4) }}
-        {{ macro_addTimeAndDays("_addTimeAndDays_5",addSingleClassSchedule.addTimeAndDays5,addSingleClassSchedule.startTime5,addSingleClassSchedule.endTime5,addSingleClassSchedule.classDays5) }}
+        {{
+        macro_addTimeAndDays("_addTimeAndDays",addSingleClassSchedule.addTimeAndDays,addSingleClassSchedule.startTime,addSingleClassSchedule.endTime,addSingleClassSchedule.classDays)
+        }}
+        {{
+        macro_addTimeAndDays("_addTimeAndDays_2",addSingleClassSchedule.addTimeAndDays2,addSingleClassSchedule.startTime2,addSingleClassSchedule.endTime2,addSingleClassSchedule.classDays2)
+        }}
+        {{
+        macro_addTimeAndDays("_addTimeAndDays_3",addSingleClassSchedule.addTimeAndDays3,addSingleClassSchedule.startTime3,addSingleClassSchedule.endTime3,addSingleClassSchedule.classDays3)
+        }}
+        {{
+        macro_addTimeAndDays("_addTimeAndDays_4",addSingleClassSchedule.addTimeAndDays4,addSingleClassSchedule.startTime4,addSingleClassSchedule.endTime4,addSingleClassSchedule.classDays4)
+        }}
+        {{
+        macro_addTimeAndDays("_addTimeAndDays_5",addSingleClassSchedule.addTimeAndDays5,addSingleClassSchedule.startTime5,addSingleClassSchedule.endTime5,addSingleClassSchedule.classDays5)
+        }}
 
         <div class="w3-row w3-padding-large">
           {{ addSingleClassSchedule.submitAddSingleClassSchedule(class="w3-btn w3-blue w3-large") }}
@@ -135,7 +145,7 @@
 
 <div class="infoTab" id="LearningLabManager" style="display:none">
   <div class="w3-panel w3-light-grey"></div>
-  <table class="w3-table w3-bordered w3-striped w3-hoverable">
+  <table id="datatable" class="w3-table w3-bordered w3-striped w3-hoverable">
     <thead>
       <tr class="w3-blue">
         <th scope="col">First Name</th>
@@ -204,7 +214,15 @@
   </table>
 </div>
 
-<script type="text/javascript" src="{{ url_for('static', filename="js/pageTabs.js") }}"></script>
+<script>
+  $(document).ready(function () {
+    $('#datatable').DataTable({
+      "lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]]
+    });
+  });
+</script>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/pageTabs.js') }}"></script>
 
 <script type='text/javascript'>
   document.addEventListener("DOMContentLoaded", function (event) {
@@ -219,7 +237,7 @@
 </script>
 
 <!-- Search Filter -->
-<script type="text/javascript" src="{{ url_for('static', filename="js/searchFilters.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/searchFilters.js') }}"></script>
 <script>
   // Note: the table does not include the header rows
   var tableBody = document.getElementById('filteredTable');

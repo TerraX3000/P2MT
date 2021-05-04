@@ -58,7 +58,7 @@
       <p>TMI Date: {{ tmiDay.strftime('%a %b %-d') }}</p>
     </div>
   </div>
-  <table class="w3-table-all w3-hoverable">
+  <table id="datatable" class="w3-table-all w3-hoverable">
     <thead>
       <tr class="w3-blue">
         <th>Class Date</th>
@@ -108,6 +108,15 @@
     </tbody>
   </table>
 </form>
+
+
+<script>
+  $(document).ready(function () {
+    $('#datatable').DataTable({
+      "lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]]
+    });
+  });
+</script>
 
 <!-- Search Filter -->
 <script type="text/javascript" src="{{ url_for('static', filename='js/searchFilters.js') }}"></script>

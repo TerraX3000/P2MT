@@ -33,7 +33,7 @@
 {{ macro_display_flashed_messages() }}
 
 <div style="overflow-x:auto;">
-  <table class="w3-table w3-striped w3-hoverable">
+  <table id="datatable" class="w3-table w3-striped w3-hoverable">
     <thead>
       <tr class="w3-blue">
         <th colspan="2" class="w3-border-left w3-border-right">Student</th>
@@ -81,8 +81,16 @@
   </table>
 </div>
 
+<script>
+  $(document).ready(function () {
+    $('#datatable').DataTable({
+      "lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]]
+    });
+  });
+</script>
+
 <!-- Search Filter -->
-<script type="text/javascript" src="{{ url_for('static', filename="js/searchFilters.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/searchFilters.js') }}"></script>
 <script>
   // Note: the table does not include the header rows
   var tableBody = document.getElementById('filteredTable');

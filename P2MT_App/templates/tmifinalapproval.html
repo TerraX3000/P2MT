@@ -110,7 +110,7 @@
   </div>
 
 
-  <table class="w3-table w3-border w3-bordered w3-hoverable">
+  <table id="datatable" class="w3-table w3-border w3-bordered w3-hoverable">
     <thead>
       <tr class="w3-blue">
         <th></th>
@@ -222,6 +222,14 @@
     </tbody>
   </table>
 </div>
+
+<script>
+  $(document).ready(function () {
+    $('#datatable').DataTable({
+      "lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]]
+    });
+  });
+</script>
 
 <script>
   // Keep track of the scroll position so the page reloads to the same position 

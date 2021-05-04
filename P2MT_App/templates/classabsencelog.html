@@ -29,7 +29,7 @@
 
 {{ macro_display_flashed_messages() }}
 
-<table class="w3-table w3-table-border w3-table-bordered w3-hoverable">
+<table id="datatable" class="w3-table w3-table-border w3-table-bordered w3-hoverable">
   <thead>
     <tr class="w3-blue">
       <th>First Name </th>
@@ -71,5 +71,12 @@
   searchFilter.addEventListener('keyup', filterFirstLastNames);
 </script>
 
+<script>
+  $(document).ready(function () {
+    $('#datatable').DataTable({
+      "lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]]
+    });
+  });
+</script>
 
 {% endblock content %}
