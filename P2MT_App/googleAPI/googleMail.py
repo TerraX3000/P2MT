@@ -135,8 +135,9 @@ def send_azure_email(
     """Send email using Azure."""
     printLogEntry("Running send_azure_email()")
     url = AZURE_SEND_EMAIL_URL
+    print("email_sender = ", email_sender)
     data = {
-        "sender": "stanley_k@hcde.org",
+        "sender": email_sender,
         "recipient": email_to,
         "email_cc": email_cc,
         "email_bcc": email_bcc,
