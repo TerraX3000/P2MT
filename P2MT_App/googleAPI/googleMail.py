@@ -17,6 +17,13 @@ from flask import flash
 from flask_login import current_user
 import json
 
+import os
+
+AZURE_SEND_EMAIL_URL = os.getenv("AZURE_SEND_EMAIL_URL")
+
+import requests
+from icecream import ic
+
 # Email variables. Modify this!
 EMAIL_FROM = "phase2team@students.hcde.org"
 EMAIL_TO = "phase2team@students.hcde.org"
@@ -122,6 +129,35 @@ def service_account_login():
     return service
 
 
+def send_azure_email(
+    email_sender, email_to, email_cc, email_bcc, emailSubject, emailContent
+):
+    """Send email using Azure."""
+    printLogEntry("Running send_azure_email()")
+    url = AZURE_SEND_EMAIL_URL
+    data = {
+        "sender": "stanley_k@hcde.org",
+        "recipient": email_to,
+        "email_cc": email_cc,
+        "email_bcc": email_bcc,
+        "subject": emailSubject,
+        "html_message": emailContent,
+        "text_message": emailContent,
+    }
+    # headers = {"content-type": "application/json"}
+    r = requests.post(url, json=data)
+    printLogEntry("Executed request to 'Azure Send Email'")
+    print("request status code =", r.status_code)
+    try:
+        print("request response =", r.json())
+    except:
+        print("request response =", r)
+    if r.status_code == 200 or r.status_code == 202:
+        return True
+    else:
+        return False
+
+
 def sendEmail(email_to, email_cc, emailSubject, emailContent):
     printLogEntry("Running sendEmail()")
     # include the system account as a bcc recipient on all emails
@@ -137,16 +173,26 @@ def sendEmail(email_to, email_cc, emailSubject, emailContent):
         email_cc = current_user.email
     email_details = f"Email Details - to: {email_to} cc: {email_cc} bcc: {email_bcc} subject: {emailSubject}"
     print(email_details)
-    email_sender = "phase2team@students.hcde.org"
-    message = create_message(
-        email_sender, email_to, email_cc, email_bcc, emailSubject, emailContent
-    )
-    # print("message =", message)
-    service = service_account_login()
-    print("service =", service)
-    sent = send_message(service, "phase2team@students.hcde.org", message)
+    use_azure_send_email = os.getenv("USE_AZURE_SEND_EMAIL", "False").lower() in [
+        "true",
+        "1",
+    ]
+    if use_azure_send_email:
+        email_sender = current_user.email
+        sent = send_azure_email(
+            email_sender, email_to, email_cc, email_bcc, emailSubject, emailContent
+        )
+    else:
+        email_sender = "phase2team@students.hcde.org"
+        message = create_message(
+            email_sender, email_to, email_cc, email_bcc, emailSubject, emailContent
+        )
+        # print("message =", message)
+        service = service_account_login()
+        print("service =", service)
+        sent = send_message(service, "phase2team@students.hcde.org", message)
     print("sent message =", sent)
-    if sent is None:
+    if sent is None or sent == False:
         flash_message = f"Error: Unable to send email.  Review {email_details}"
         flash(flash_message, "error")
     else:
