@@ -46,7 +46,34 @@ pblPlanner_bp = Blueprint("pblPlanner_bp", __name__)
 @login_required
 def displayStemIIIPblPlanner():
     printLogEntry("Running displayStemIIIPblPlanner()")
-    pbls = Pbls.query.order_by(
+
+    academicYearChoices = getAcademicYearChoices()
+    quarterOptions = getQuarterChoices()
+
+    # if request.method == "GET" and request.args.get("selectedQuarter"):
+    #     quarter = request.args.get("selectedQuarter")
+    #     print("get selected quarter")
+    #     print("selectedQuarter =", quarter)
+    #     quarter = int(quarter)
+    # elif request.method == "GET" and request.args.get("selectedAcademicYear"):
+    #     print("get selected academic year")
+    #     academicYear = request.args.get("selectedAcademicYear")
+    #     print("selectedAcademicYear =", academicYear)
+    if request.method == "POST":
+        try:
+            quarter = request.form["selectedQuarter"]
+            quarter = int(quarter)
+        except:
+            quarter = getCurrentQuarter()
+        try:
+            academicYear = request.form["selectedAcademicYear"]
+        except:
+            academicYear = getCurrentAcademicYear()
+    else:
+        quarter = getCurrentQuarter()
+        academicYear = getCurrentAcademicYear()
+
+    pbls = Pbls.query.filter(Pbls.academicYear == academicYear).order_by(
         Pbls.academicYear.desc(), Pbls.quarter.desc(), Pbls.pblName
     )
 
@@ -58,22 +85,8 @@ def displayStemIIIPblPlanner():
         )
     )
 
-    quarterOptions = getQuarterChoices()
-    currentQuarter = getCurrentQuarter()
-
-    if request.method == "GET" and request.args.get("selectedQuarter"):
-        quarter = request.args.get("selectedQuarter")
-        print("selectedQuarter =", quarter)
-        quarter = int(quarter)
-    elif request.method == "POST":
-        quarter = request.form["selectedQuarter"]
-        print("selectedQuarter =", quarter)
-        quarter = int(quarter)
-    else:
-        quarter = getCurrentQuarter()
-
     # Get list of kickoff and final PBL events for current year and selected quarter
-    academicYear = getCurrentAcademicYear()
+
     pblKickoffEvents = (
         PblEvents.query.join(Pbls)
         .filter(
@@ -99,7 +112,9 @@ def displayStemIIIPblPlanner():
         title="STEM III PBL Planner",
         pbls=pbls,
         pblEvents=pblEvents,
+        academicYearChoices=academicYearChoices,
         quarterOptions=quarterOptions,
+        displayAcademicYear=academicYear,
         displayQuarter=quarter,
         pblKickoffEvents=pblKickoffEvents,
         pblFinalEvents=pblFinalEvents,

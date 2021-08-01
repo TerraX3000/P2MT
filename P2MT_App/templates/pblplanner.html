@@ -24,6 +24,21 @@
     </form>
   </div>
 
+  <form id="selectAcademicYearForm" method="POST" action="{{ url_for('pblPlanner_bp.displayStemIIIPblPlanner') }}"
+    enctype="multipart/form-data" class="w3-quarter">
+    <!-- Add drop down menu to select quarter -->
+    <select name="selectedAcademicYear" id="selectedAcademicYear" form="selectAcademicYearForm"
+      class="w3-select w3-margin">
+      {% for year in academicYearChoices %}
+      {% if year[0] == displayAcademicYear %}
+      <option value="{{year[0]}}" selected>{{year[1]}}</option>
+      {% else %}
+      <option value="{{year[0]}}">{{year[1]}}</option>
+      {% endif %}
+      {% endfor %}
+    </select>
+  </form>
+
   <table class="w3-table w3-bordered w3-striped w3-hoverable">
     <thead>
       <tr class="w3-blue">
@@ -192,6 +207,7 @@
       {% endif %}
       {% endfor %}
     </select>
+    <input id="hidden-selected-academic-year" type="hidden" name="selectedAcademicYear">
   </form>
 
   <div class="w3-panel"></div>
@@ -286,9 +302,9 @@
 </div>
 
 
-<script type="text/javascript" src="{{ url_for('static', filename="js/activateAccordion.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/activateAccordion.js') }}"></script>
 
-<script type="text/javascript" src="{{ url_for('static', filename="js/pageTabs.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/pageTabs.js') }}"></script>
 <!-- Reload page to last loaded tab -->
 <script type='text/javascript'>
   document.addEventListener("DOMContentLoaded", function (event) {
@@ -303,18 +319,36 @@
 </script>
 
 <script>
-  // Set event listeners for quarter selection
-  var selectedQuarterDropdown = document.getElementById("selectedQuarter")
-  selectedQuarterDropdown.addEventListener("change", function () { submitUpdatedQuarter(event); });
+  // Set event listeners for academic year selection
+  var selectedAcademicYearDropdown = document.getElementById("selectedAcademicYear")
+  selectedAcademicYearDropdown.addEventListener("change", function () { submitUpdatedAcademicYear(event); });
 
   // Update filterUpdateFlag to indicate change to filter settings and submit form
-  function submitUpdatedQuarter(event) {
-    console.log('Change quarter downdrop menu detected!')
+  function submitUpdatedAcademicYear(event) {
+    console.log('Change academic year downdrop menu detected!')
     trigger_field = document.getElementById(event.target.id);
     form = trigger_field.form;
     form.submit();
   }
 </script>
+
+<script>
+  // Set event listeners for quarter selection
+  var selectedQuarterDropdown = document.getElementById("selectedQuarter")
+  var hiddenAcademicYear = document.getElementById("hidden-selected-academic-year")
+  selectedQuarterDropdown.addEventListener("change", function () { submitUpdatedQuarter(event); });
+
+  // Update filterUpdateFlag to indicate change to filter settings and submit form
+  function submitUpdatedQuarter(event) {
+    console.log('Change quarter downdrop menu detected!')
+    hiddenAcademicYear.value = selectedAcademicYearDropdown.value
+    trigger_field = document.getElementById(event.target.id);
+    form = trigger_field.form;
+    form.submit();
+  }
+</script>
+
+
 
 
 {% endblock content %}
