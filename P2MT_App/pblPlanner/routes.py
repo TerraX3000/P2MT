@@ -47,7 +47,7 @@ pblPlanner_bp = Blueprint("pblPlanner_bp", __name__)
 def displayStemIIIPblPlanner():
     printLogEntry("Running displayStemIIIPblPlanner()")
     pbls = Pbls.query.order_by(
-        Pbls.schoolYear.desc(), Pbls.quarter.desc(), Pbls.pblName
+        Pbls.academicYear.desc(), Pbls.quarter.desc(), Pbls.pblName
     )
 
     pblEvents = (
@@ -241,7 +241,7 @@ def displayStemIIITeams():
         quarter = int(quarter)
         if request.args.get("selectedEventCategory"):
             eventCategory = request.args.get("selectedEventCategory")
-            print("selectedEventCategory =", selectedEventCategory)
+            print("selectedEventCategory =", eventCategory)
         else:
             eventCategory = "Kickoff"
     elif request.method == "POST":
@@ -275,7 +275,7 @@ def displayStemIIITeams():
         teamNumbers.append(f"{i}")
 
     # Create tuple of pblOptions and set default choice to None
-    pblOptions = list(getPblOptionsTuple(quarter))
+    pblOptions = list(getPblOptionsTuple(academicYear, quarter))
     pblOptions.insert(0, ("", "Choose PBL..."))
     pblOptions = tuple(pblOptions)
 

@@ -387,10 +387,10 @@ def getSchoolYearAndSemester(academicYear, quarter):
     return schoolYear, semester
 
 
-def getPblOptionsTuple(quarter):
+def getPblOptionsTuple(academicYear, quarter):
     pblOptionsTuple = (
         db.session.query(Pbls.id, Pbls.pblName)
-        .filter(Pbls.quarter == quarter)
+        .filter(Pbls.academicYear==academicYear, Pbls.quarter == quarter)
         .order_by(Pbls.pblName,)
         .distinct()
     )
