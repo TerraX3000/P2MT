@@ -447,11 +447,10 @@ def saveTeams():
 @login_required
 def new_Pbl():
     printLogEntry("Running new_Pbl()")
-    pblEditorFormDetails = pblEditorForm()
+    pblEditorFormDetails = pblEditorForm(academicYear=getCurrentAcademicYear())
     pblEditorFormDetails.className.choices = [("STEM III", "STEM III")]
     pblEditorFormDetails.schoolYear.choices = getSchoolYearChoices()
     pblEditorFormDetails.academicYear.choices = getAcademicYearChoices()
-    pblEditorFormDetails.academicYear.default = getCurrentAcademicYear()
     pblEditorFormDetails.semester.choices = getSemesterChoices()
     quarterChoices = list(getQuarterChoices())
     quarterChoices.insert(0, (0, "TBD"))
