@@ -1,4 +1,4 @@
-from flask import send_file, current_app
+from flask import send_file, current_app, flash, abort
 from P2MT_App import db
 from P2MT_App.models import ClassSchedule, ClassAttendanceLog, SchoolCalendar, Student
 from P2MT_App.main.utilityfunctions import download_File, printLogEntry
@@ -112,12 +112,48 @@ def uploadSchedules(fname):
             indStudy = False
         classDays = column[14].strip()
         print(column[16].strip())
-        startTime = datetime.strptime(column[16].strip(), "%I:%M %p").time()
-        endTime = datetime.strptime(column[17].strip(), "%I:%M %p").time()
+        try:  # %I Hour (12-hour clock) as a zero-padded decimal number.	01, 02, ..., 12
+            startTime = datetime.strptime(column[16].strip(), "%I:%M %p").time()
+            endTime = datetime.strptime(column[17].strip(), "%I:%M %p").time()
+            print("%I worked")
+        except:
+            try:  # %-I Hour (12-hour clock) as a decimal number.	1, 2, ... 12
+                startTime = datetime.strptime(column[16].strip(), "%-I:%M %p").time()
+                endTime = datetime.strptime(column[17].strip(), "%-I:%M %p").time()
+                print("%-I worked")
+            except:
+                try:  # %H Hour (24-hour clock) as a zero-padded decimal number.	00, 01, ..., 23
+                    startTime = datetime.strptime(column[16].strip(), "%H:%M %p").time()
+                    endTime = datetime.strptime(column[17].strip(), "%H:%M %p").time()
+                    print("%H worked")
+                except:
+                    try:  # %-H Hour (24-hour clock) as a decimal number.	0, 1, ..., 23
+                        startTime = datetime.strptime(
+                            column[16].strip(), "%-H:%M %p"
+                        ).time()
+                        endTime = datetime.strptime(
+                            column[17].strip(), "%-H:%M %p"
+                        ).time()
+                        print("%-H worked")
+                    except Exception as err:
+                        print(err)
+                        flash("Error processing class time")
+                        error = f"""Error processing class time: <br>
+                        Submitted: <br>
+                        chattStateANumber: {column[2]} <br>
+                        startTime: {column[16]} <br>
+                        endTime: {column[17]} <br>
+                        Failed: %I:%M %p (12-hour clock) as a decimal number.	1, 2, ... 12 <br>
+                        Failed: %-I:%M %p (12-hour clock) as a decimal number.	1, 2, ... 12 <br>
+                        Failed: %H:%M %p (24-hour clock) as a zero-padded decimal number.	00, 01, ..., 23 <br>
+                        Failed: %-H:%M %p (24-hour clock) as a decimal number.	0, 1, ..., 23 <br><br>
+                        {err}"""
+                        return abort(500, description=error)
         comment = column[18].strip()
         googleCalendarEventID = ""
         interventionLog_id = None
         learningLab = False
+        # try:
         addClassSchedule(
             schoolYear,
             semester,
@@ -136,6 +172,32 @@ def uploadSchedules(fname):
             interventionLog_id,
             learningLab,
         )
+        # try:
+        #     ...
+        # except Exception as err:
+        #     print(err)
+        #     error = f"""Error processing schedule: <br>
+        #     Processed values when error occurred: <br>
+        #     schoolYear: {schoolYear} <br>
+        #     semester: {semester} <br>
+        #     chattStateANumber: {chattStateANumber} <br>
+        #     campus: {campus} <br>
+        #     className: {className} <br>
+        #     teacherLastName: {teacherLastName} <br>
+        #     staffID: {staffID} <br>
+        #     online: {online} <br>
+        #     indStudy: {indStudy} <br>
+        #     classDays: {classDays} <br>
+        #     startTime: {startTime} <br>
+        #     endTime: {endTime} <br>
+        #     comment: {comment} <br>
+        #     googleCalendarEventID: {googleCalendarEventID} <br>
+        #     interventionLog_id: {interventionLog_id} <br>
+        #     learningLab: {learningLab} <br>
+        #     <br><br>
+        #     {err}"""
+        #     return abort(500, description=error)
+        return True
 
 
 def deleteClassSchedule(schoolYear, semester, yearOfGraduation):
