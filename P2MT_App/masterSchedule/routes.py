@@ -7,6 +7,8 @@ from P2MT_App.models import ClassSchedule, ClassAttendanceLog
 from P2MT_App.scheduleAdmin.ScheduleAdmin import downloadClassSchedule
 from P2MT_App.main.referenceData import (
     getCurrentSchoolYear,
+    getSchoolYearForFallSemester,
+    getSchoolYearForSpringSemester,
     getCurrentSemester,
     getStudentName,
     getSchoolYear,
@@ -33,12 +35,12 @@ def displayMasterSchedule():
     printLogEntry("Running displayMasterSchedule()")
     if request.method == "POST":
         if request.form["displaySemester"] == "Fall":
-            displayYear = 2020
+            displayYear = getSchoolYearForFallSemester()
             displaySemester = "Fall"
             displayFallSemester = "checked"
             displaySpringSemester = ""
         elif request.form["displaySemester"] == "Spring":
-            displayYear = 2021
+            displayYear = getSchoolYearForSpringSemester()
             displaySemester = "Spring"
             displayFallSemester = ""
             displaySpringSemester = "checked"
