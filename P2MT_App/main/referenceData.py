@@ -390,7 +390,7 @@ def getSchoolYearAndSemester(academicYear, quarter):
 def getPblOptionsTuple(academicYear, quarter):
     pblOptionsTuple = (
         db.session.query(Pbls.id, Pbls.pblName)
-        .filter(Pbls.academicYear==academicYear, Pbls.quarter == quarter)
+        .filter(Pbls.academicYear == academicYear, Pbls.quarter == quarter)
         .order_by(Pbls.pblName,)
         .distinct()
     )
@@ -536,6 +536,26 @@ def getCurrentSchoolYear():
     schoolYear = date.today().year
     # print("Current schoolYear =", schoolYear)
     return schoolYear
+
+
+def getSchoolYearForFallSemester():
+    currentSemester = getCurrentSemester()
+    todaysYear = date.today().year
+    if currentSemester == "Fall":
+        schoolYearForFallSemester = todaysYear
+    elif currentSemester == "Spring":
+        schoolYearForFallSemester = todaysYear - 1
+    return schoolYearForFallSemester
+
+
+def getSchoolYearForSpringSemester():
+    currentSemester = getCurrentSemester()
+    todaysYear = date.today().year
+    if currentSemester == "Fall":
+        schoolYearForSpringSemester = todaysYear + 1
+    elif currentSemester == "Spring":
+        schoolYearForSpringSemester = todaysYear
+    return schoolYearForSpringSemester
 
 
 def getCurrentSemester():
