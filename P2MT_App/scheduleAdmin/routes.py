@@ -35,6 +35,7 @@ from P2MT_App.scheduleAdmin.ScheduleAdmin import (
 )
 from P2MT_App.main.utilityfunctions import save_File
 from P2MT_App.main.utilityfunctions import printLogEntry, printFormErrors
+from P2MT_App.main.setupFunctions import extendSchoolCalendarIfNecessary
 
 scheduleAdmin_bp = Blueprint("scheduleAdmin_bp", __name__)
 
@@ -57,6 +58,7 @@ def downloadClassScheduleTemplate():
 @login_required
 def displayScheduleAdmin():
     printLogEntry("Running displayScheduleAdmin()")
+    extendSchoolCalendarIfNecessary()
     uploadClassScheduleFormDetails = uploadClassScheduleForm()
     propagateClassAttendanceLogsFormDetails = propagateClassAttendanceLogsForm()
     propagateClassAttendanceLogsFormDetails.schoolYear.choices = getSchoolYear()
