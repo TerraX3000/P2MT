@@ -10,6 +10,7 @@ from P2MT_App.schoolCalendar.forms import (
     updateSchoolCalendarContainerForm,
 )
 from P2MT_App.main.referenceData import getCurrent_Start_End_Tmi_Dates
+from icecream import ic
 
 schoolCalendar_bp = Blueprint("schoolCalendar_bp", __name__)
 
@@ -60,7 +61,25 @@ def displaySchoolCalendar():
 
     # Query database for school calendar day info
     # startCalendarDate must correspond to a Monday for correct display on School Calendar
-    startCalendarDate = date(2020, 8, 3)
+    # if date is between June 1, 2020 and May 30, 2021 --> start = first Monday after July 31, 2020
+    # if date is between June 1, 2021 and May 30, 2022 --> start = first Monday after July 31, 2021
+    # if date is between June 1, 2022 and May 30, 2023 --> start = first Monday after July 31, 2022
+
+    # use last day of July as search criteria to find the first Monday in August
+    if date.today().month > 5:
+        last_day_of_July = date(date.today().year, 7, 31)
+    else:
+        last_day_of_July = date(date.today().year - 1, 7, 31)
+
+    startCalendarDate = (
+        SchoolCalendar.query.filter(
+            SchoolCalendar.day == "M", SchoolCalendar.classDate > last_day_of_July
+        )
+        .order_by(SchoolCalendar.classDate)
+        .first()
+    ).classDate
+    ic(startCalendarDate)
+
     schoolCalendarDays = SchoolCalendar.query.filter(
         SchoolCalendar.day != "S", SchoolCalendar.classDate >= startCalendarDate
     ).all()
