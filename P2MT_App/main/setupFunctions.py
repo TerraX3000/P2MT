@@ -2,9 +2,8 @@ from P2MT_App import db
 from sqlalchemy import func
 from P2MT_App.models import InterventionType, SchoolCalendar
 from P2MT_App.main.utilityfunctions import printLogEntry
-from P2MT_App.main.referenceData import getLastDayOfCurrentSchoolYear
 from icecream import ic
-import datetime
+from datetime import date, timedelta
 
 import pandas as pd
 
@@ -96,19 +95,24 @@ def addSchoolCalendarDays(startDate, endDate):
 
 
 def extendSchoolCalendarIfNecessary():
-    """Checks whether the school calendar includes dates for the school year and extends if necessary."""
-    last_day_of_current_school_year = getLastDayOfCurrentSchoolYear()
-    last_day_in_school_calendar = db.session.query(
-        func.max(SchoolCalendar.classDate)
-    ).first()[0]
-    if last_day_of_current_school_year > last_day_in_school_calendar:
-        print(
-            f"extend the school calendar from {last_day_in_school_calendar} to {last_day_of_current_school_year}"
-        )
-        addSchoolCalendarDays(
-            last_day_in_school_calendar + datetime.timedelta(days=1),
-            last_day_of_current_school_year,
-        )
-        db.session.commit()
+    """From May to August, check whether the school calendar includes dates for the upcoming school year 
+    and extend if necessary.  This check ensures the school calendar is updated automatically."""
+    if date.today().month > 4 and date.today().month < 9:
+        print("Checking the school calendar...")
+        last_day_of_upcoming_school_year = date(date.today().year + 1, 5, 31)
+        last_day_in_school_calendar = db.session.query(
+            func.max(SchoolCalendar.classDate)
+        ).first()[0]
+        if last_day_of_upcoming_school_year > last_day_in_school_calendar:
+            print(
+                f"extended the school calendar from {last_day_in_school_calendar} to {last_day_of_upcoming_school_year}"
+            )
+            addSchoolCalendarDays(
+                last_day_in_school_calendar + timedelta(days=1),
+                last_day_of_upcoming_school_year,
+            )
+            db.session.commit()
+        else:
+            print(f"School calendar is good through {last_day_in_school_calendar}")
     return True
 

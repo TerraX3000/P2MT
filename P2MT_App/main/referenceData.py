@@ -629,15 +629,6 @@ def getClassYearOfGraduation(ClassGroup):
     return yearOfGraduation
 
 
-def getLastDayOfCurrentSchoolYear():
-    """Determines the last day of the current school year to use in the school calendar."""
-    if date.today().month > 5:
-        last_day_of_current_school_year = date(date.today().year + 1, 5, 31)
-    else:
-        last_day_of_current_school_year = date(date.today().year, 5, 31)
-    return last_day_of_current_school_year
-
-
 def getNextTmiDay():
     today = date.today()
     nextTmiDay = (

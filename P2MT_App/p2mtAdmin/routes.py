@@ -37,6 +37,8 @@ from P2MT_App.main.referenceData import (
     getEmailModeStatus,
 )
 
+from P2MT_App.main.setupFunctions import extendSchoolCalendarIfNecessary
+
 from P2MT_App.p2mtAdmin.p2mtAdmin import (
     addStudentToDatabase,
     uploadStudentList,
@@ -106,6 +108,7 @@ def downloadStaffListTemplate():
 @login_required
 def displayP2MTAdmin():
     printLogEntry("Running displayP2MTAdmin()")
+    extendSchoolCalendarIfNecessary()
     addStudentFormDetails = addStudentForm()
     selectStudentToEditFormDetails = selectStudentToEditForm()
     selectStudentToEditFormDetails.studentName.choices = getStudentsById()
