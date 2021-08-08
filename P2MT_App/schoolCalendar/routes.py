@@ -1,4 +1,13 @@
-from flask import render_template, request, redirect, url_for, flash, Blueprint
+from flask import (
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    Blueprint,
+    make_response,
+    jsonify,
+)
 from flask_login import login_required
 from P2MT_App import db
 from datetime import date, datetime
@@ -15,7 +24,7 @@ from icecream import ic
 schoolCalendar_bp = Blueprint("schoolCalendar_bp", __name__)
 
 
-@schoolCalendar_bp.route("/schoolcalendar", methods=["GET", "POST"])
+@schoolCalendar_bp.route("/schoolcalendar", methods=["GET"])
 @login_required
 def displaySchoolCalendar():
     extendSchoolCalendarIfNecessary()
@@ -30,34 +39,34 @@ def displaySchoolCalendar():
         endTmiPeriod = date(1970, 1, 1)
         tmiDay = date(1970, 1, 1)
 
-    if updateSchoolCalendarContainerFormDetails.validate_on_submit():
-        print("Form submitted!")
-        if updateSchoolCalendarContainerFormDetails.schoolCalendarDays:
-            print("School days update submitted")
-            print(len(updateSchoolCalendarContainerFormDetails.schoolCalendarDays.data))
-            for (
-                schoolCalendarDay
-            ) in updateSchoolCalendarContainerFormDetails.schoolCalendarDays.data:
-                if schoolCalendarDay["updateFlag"] == "updated":
-                    log_id = schoolCalendarDay["log_id"]
-                    print("log_id = ", log_id)
-                    schoolCalendar = SchoolCalendar.query.get_or_404(log_id)
-                    schoolCalendar.stemSchoolDay = schoolCalendarDay["stemSchoolDay"]
-                    schoolCalendar.phaseIISchoolDay = schoolCalendarDay[
-                        "phaseIISchoolDay"
-                    ]
-                    schoolCalendar.chattStateSchoolDay = schoolCalendarDay[
-                        "chattStateSchoolDay"
-                    ]
-                    schoolCalendar.seniorErDay = schoolCalendarDay["seniorErDay"]
-                    schoolCalendar.juniorErDay = schoolCalendarDay["juniorErDay"]
-                    schoolCalendar.seniorUpDay = schoolCalendarDay["seniorUpDay"]
-                    schoolCalendar.juniorUpDay = schoolCalendarDay["juniorUpDay"]
-                    schoolCalendar.startTmiPeriod = schoolCalendarDay["startTmiPeriod"]
-                    schoolCalendar.tmiDay = schoolCalendarDay["tmiDay"]
-                    db.session.commit()
+    # if updateSchoolCalendarContainerFormDetails.validate_on_submit():
+    #     print("Form submitted!")
+    #     if updateSchoolCalendarContainerFormDetails.schoolCalendarDays:
+    #         print("School days update submitted")
+    #         print(len(updateSchoolCalendarContainerFormDetails.schoolCalendarDays.data))
+    #         for (
+    #             schoolCalendarDay
+    #         ) in updateSchoolCalendarContainerFormDetails.schoolCalendarDays.data:
+    #             if schoolCalendarDay["updateFlag"] == "updated":
+    #                 log_id = schoolCalendarDay["log_id"]
+    #                 print("log_id = ", log_id)
+    #                 schoolCalendar = SchoolCalendar.query.get_or_404(log_id)
+    #                 schoolCalendar.stemSchoolDay = schoolCalendarDay["stemSchoolDay"]
+    #                 schoolCalendar.phaseIISchoolDay = schoolCalendarDay[
+    #                     "phaseIISchoolDay"
+    #                 ]
+    #                 schoolCalendar.chattStateSchoolDay = schoolCalendarDay[
+    #                     "chattStateSchoolDay"
+    #                 ]
+    #                 schoolCalendar.seniorErDay = schoolCalendarDay["seniorErDay"]
+    #                 schoolCalendar.juniorErDay = schoolCalendarDay["juniorErDay"]
+    #                 schoolCalendar.seniorUpDay = schoolCalendarDay["seniorUpDay"]
+    #                 schoolCalendar.juniorUpDay = schoolCalendarDay["juniorUpDay"]
+    #                 schoolCalendar.startTmiPeriod = schoolCalendarDay["startTmiPeriod"]
+    #                 schoolCalendar.tmiDay = schoolCalendarDay["tmiDay"]
+    #                 db.session.commit()
 
-    print(updateSchoolCalendarContainerFormDetails.errors)
+    # print(updateSchoolCalendarContainerFormDetails.errors)
 
     # Query database for school calendar day info
     # startCalendarDate must correspond to a Monday for correct display on School Calendar
@@ -130,3 +139,16 @@ def displaySchoolCalendar():
         endTmiPeriod=endTmiPeriod,
         tmiDay=tmiDay,
     )
+
+
+@schoolCalendar_bp.route("/schoolcalendar/update-field", methods=["GET", "POST"])
+@login_required
+def updateSchoolCalendar():
+    """Process updated setting for school calendar day."""
+    req = request.get_json()
+    log_id = req["log_id"]
+    schoolCalendar = SchoolCalendar.query.get_or_404(log_id)
+    setattr(schoolCalendar, req["field"], req["value"])
+    db.session.commit()
+    res = make_response(jsonify({"result": "success"}), 200)
+    return res

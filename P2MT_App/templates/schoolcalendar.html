@@ -79,7 +79,8 @@
             <div class="w3-col s1">
                 <p></p>
             </div>
-            {% for schoolCalendarDate, schoolCalendarDaysFieldList in zip(schoolCalendarDates, schoolCalendarForm.schoolCalendarDays) %}
+            {% for schoolCalendarDate, schoolCalendarDaysFieldList in zip(schoolCalendarDates,
+            schoolCalendarForm.schoolCalendarDays) %}
             <div class="w3-col s2 w3-pale-green w3-border">
                 {{ schoolCalendarDaysFieldList.hidden_tag() }}
                 <p class="w3-center"> {{ schoolCalendarDate.classDate.strftime('%a %b %-d %Y') }} </p>
@@ -141,21 +142,67 @@
         checkboxes[i].addEventListener("click", function () { submitUpdate(event); });
     }
 
-    // Submit update to attendance on changes to attendanceCode or comment
-    function submitUpdate(event) {
-        // Identify the form which was updated
-        trigger_field = document.getElementById(event.target.id);
-        console.log('trigger_field = ' + trigger_field);
-        form = trigger_field.form;
-        console.log('trigger_form = ' + form)
+    // Submit update to school calendar day
+    // function submitUpdate(event) {
+    //     // Identify the form which was updated
+    //     trigger_field = document.getElementById(event.target.id);
+    //     console.log('trigger_field = ' + trigger_field);
+    //     form = trigger_field.form;
+    //     console.log('trigger_form = ' + form)
 
-        // Update the hidden fields to capture the teacher name, class name, and class date
-        event_id = event.target.id;
-        event_split_id = event_id.split('-');
-        schoolDayHiddenInput_id = event_split_id[0] + '-' + event_split_id[1] + '-updateFlag';
-        console.log(schoolDayHiddenInput_id)
-        document.getElementById(schoolDayHiddenInput_id).value = 'updated';
-        form.submit();
+    //     // Update the hidden fields to capture the teacher name, class name, and class date
+    //     event_id = event.target.id;
+    //     event_split_id = event_id.split('-');
+    //     schoolDayHiddenInput_id = event_split_id[0] + '-' + event_split_id[1] + '-updateFlag';
+    //     console.log(schoolDayHiddenInput_id)
+    //     document.getElementById(schoolDayHiddenInput_id).value = 'updated';
+    //     form.submit();
+    // }
+
+</script>
+
+<script>
+
+    // Submit update to school calendar day
+    function submitUpdate(event) {
+
+        var input_trigger = document.getElementById(event.target.id);
+        var input_trigger_name = input_trigger.name;
+        const input_trigger_array = input_trigger_name.split("-");
+        const fieldNumber = input_trigger_array[1];
+        const field = input_trigger_array[2];
+        log_id = document.getElementById('schoolCalendarDays-' + fieldNumber + '-log_id').value;
+        var value = input_trigger.checked;
+        // console.log(log_id, fieldNumber, field, value);
+
+        var schoolCalendarUpdate = {
+            log_id: log_id,
+            field: field,
+            value: value
+        };
+
+        fetch(`${window.origin}/schoolcalendar/update-field`, {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify(schoolCalendarUpdate),
+            cache: "no-cache",
+            headers: new Headers({
+                "content-type": "application/json"
+            })
+        })
+            .then(function (response) {
+                if (response.status !== 200) {
+                    console.log(`Looks like there was a problem. Status code: ${response.status}`);
+                    return;
+                }
+                response.json().then(function (data) {
+                    // console.log(data);
+                });
+            })
+            .catch(function (error) {
+                console.log("Fetch error: " + error);
+            });
+
     }
 
 </script>
