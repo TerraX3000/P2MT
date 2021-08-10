@@ -558,6 +558,18 @@ def getSchoolYearForSpringSemester():
     return schoolYearForSpringSemester
 
 
+def get_start_of_current_school_year():
+    """Reture the first day of August for the current school year."""
+    start_of_current_school_year = date(getSchoolYearForFallSemester(), 8, 1)
+    return start_of_current_school_year
+
+
+def get_end_of_current_school_year():
+    """Reture the last day of May for the current school year."""
+    end_of_current_school_year = date(getSchoolYearForSpringSemester(), 5, 31)
+    return end_of_current_school_year
+
+
 def getCurrentSemester():
     # printLogEntry("getCurrentSemester() function called")
     if date.today().month < 6:

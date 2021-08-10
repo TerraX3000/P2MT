@@ -8,6 +8,10 @@ from P2MT_App.models import (
     Student,
 )
 from P2MT_App.main.utilityfunctions import printLogEntry
+from P2MT_App.main.referenceData import (
+    get_end_of_current_school_year,
+    get_start_of_current_school_year,
+)
 from P2MT_App.dailyAttendance.dailyAttendance import downloadDailyAttendanceLog
 
 dailyAttendance_bp = Blueprint("dailyAttendance_bp", __name__)
@@ -17,9 +21,12 @@ dailyAttendance_bp = Blueprint("dailyAttendance_bp", __name__)
 @login_required
 def displayDailyAttendanceLogs():
     printLogEntry("displayDailyAttendanceLogs() function called")
-    DailyAttendanceLogs = DailyAttendanceLog.query.order_by(
-        DailyAttendanceLog.absenceDate.desc()
-    )
+    start_of_current_school_year = get_start_of_current_school_year()
+    end_of_current_school_year = get_end_of_current_school_year()
+    DailyAttendanceLogs = DailyAttendanceLog.query.filter(
+        DailyAttendanceLog.absenceDate >= start_of_current_school_year,
+        DailyAttendanceLog.absenceDate <= end_of_current_school_year,
+    ).order_by(DailyAttendanceLog.absenceDate.desc())
     return render_template(
         "dailyattendancelog.html",
         title="Absence Log",
