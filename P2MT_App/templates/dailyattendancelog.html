@@ -35,10 +35,12 @@
     <tr>
       <td scope="row">{{ DailyAttendanceLog.Student.firstName }}</td>
       <td>{{ DailyAttendanceLog.Student.lastName }}</td>
-      <td>{{ DailyAttendanceLog.absenceDate.strftime('%-m/%-d/%Y') }}</td>
+      <td data-sort="{{ DailyAttendanceLog.absenceDate.strftime('%Y-%m-%d') }}">{{
+        DailyAttendanceLog.absenceDate.strftime('%-m/%-d/%Y') }}</td>
       <td>{{ DailyAttendanceLog.attendanceCode }}</td>
       <td>{{ DailyAttendanceLog.comment }}</td>
-      <td>{{ DailyAttendanceLog.createDate.strftime('%-m/%-d/%Y') }}</td>
+      <td data-sort="{{ DailyAttendanceLog.createDate.strftime('%Y-%m-%d') }}">{{
+        DailyAttendanceLog.createDate.strftime('%-m/%-d/%Y') }}</td>
       <td>{{ DailyAttendanceLog.FacultyAndStaff.lastName}}</td>
       <td><button type="button" class="w3-btn w3-red"
           onclick="document.getElementById('deleteModal{{DailyAttendanceLog.id}}').style.display='block'">Delete</button>
@@ -86,7 +88,8 @@
 <script>
   $(document).ready(function () {
     $('#datatable').DataTable({
-      "lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]]
+      "lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]],
+      "order": [[2, "desc"]]
     });
   });
 </script>
