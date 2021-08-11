@@ -16,7 +16,7 @@ from P2MT_App.interventionInfo.interventionInfo import (
 )
 from P2MT_App.interventionInfo.forms import addInterventionLogForm
 from P2MT_App.dailyAttendance.forms import addDailyAttendanceForm
-from P2MT_App.main.referenceData import getInterventionTypes
+from P2MT_App.main.referenceData import getInterventionTypes, getClassYearOfGraduation
 from P2MT_App.main.utilityfunctions import printLogEntry
 from P2MT_App.p2mtAdmin.p2mtAdmin import downloadStudentList
 from datetime import datetime
@@ -38,9 +38,13 @@ def displayStudents():
     dailyAttendanceForm = addDailyAttendanceForm()
     interventionForm = addInterventionLogForm()
     interventionForm.interventionType.choices = getInterventionTypes()
-    students = Student.query.order_by(
-        Student.yearOfGraduation.asc(), Student.lastName.asc()
-    )
+    junior_year_of_graudation = getClassYearOfGraduation("Juniors")
+    senior_year_of_graduation = getClassYearOfGraduation("Seniors")
+    print(junior_year_of_graudation, senior_year_of_graduation)
+    students = Student.query.filter(
+        Student.yearOfGraduation <= junior_year_of_graudation,
+        Student.yearOfGraduation >= senior_year_of_graduation,
+    ).order_by(Student.yearOfGraduation.asc(), Student.lastName.asc())
     if "submitDailyAttendance" in request.form:
         if dailyAttendanceForm.validate_on_submit():
             printLogEntry("Running dailyAttendanceForm")
