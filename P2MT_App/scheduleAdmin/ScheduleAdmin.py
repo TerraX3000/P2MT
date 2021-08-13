@@ -87,6 +87,7 @@ def addClassSchedule(
 def uploadSchedules(fname):
     printLogEntry("uploadSchedules() function called")
     importCSV = open(fname, "r")
+    print(importCSV)
     for row in importCSV:
         print("row=", row)
         column = row.split(",")
@@ -197,7 +198,7 @@ def uploadSchedules(fname):
         #     <br><br>
         #     {err}"""
         #     return abort(500, description=error)
-        return True
+    return True
 
 
 def deleteClassSchedule(schoolYear, semester, yearOfGraduation):
