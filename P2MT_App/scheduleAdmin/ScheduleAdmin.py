@@ -40,6 +40,41 @@ def addClassAttendanceLog(classSchedule_id, list_of_dates):
             db.session.commit()
 
 
+def getDuplicateSchedule(
+    schoolYear,
+    semester,
+    chattStateANumber,
+    campus,
+    className,
+    teacherLastName,
+    staffID,
+    online,
+    indStudy,
+    classDays,
+    startTime,
+    endTime,
+    learningLab,
+):
+    """Check whether schedule already exists and returns it if so."""
+    printLogEntry("Running getDuplicateSchedule()")
+    duplicateSchedule = ClassSchedule.query.filter(
+        ClassSchedule.schoolYear == schoolYear,
+        ClassSchedule.semester == semester,
+        ClassSchedule.chattStateANumber == chattStateANumber,
+        ClassSchedule.campus == campus,
+        ClassSchedule.className == className,
+        ClassSchedule.teacherLastName == teacherLastName,
+        ClassSchedule.staffID == staffID,
+        ClassSchedule.online == online,
+        ClassSchedule.indStudy == indStudy,
+        ClassSchedule.classDays == classDays,
+        ClassSchedule.startTime == startTime,
+        ClassSchedule.endTime == endTime,
+        ClassSchedule.learningLab == learningLab,
+    ).first()
+    return duplicateSchedule
+
+
 # Add class schedule information to database
 def addClassSchedule(
     schoolYear,
@@ -59,6 +94,7 @@ def addClassSchedule(
     interventionLog_id,
     learningLab,
 ):
+    """Add new class schedule to the database."""
     classSchedule1 = ClassSchedule(
         schoolYear=schoolYear,
         semester=semester,
@@ -101,6 +137,8 @@ def uploadSchedules(fname):
                         Typical Chatt State Class:<br>{correct_row_example_3}"""
     importCSV = open(fname, "r")
     print(importCSV)
+    duplicate_counter = 0
+    new_counter = 0
     for row in importCSV:
         print("row=", row)
         column = row.split(",")
@@ -203,7 +241,7 @@ def uploadSchedules(fname):
         interventionLog_id = None
         learningLab = False
         # try:
-        addClassSchedule(
+        duplicateSchedule = getDuplicateSchedule(
             schoolYear,
             semester,
             chattStateANumber,
@@ -216,37 +254,51 @@ def uploadSchedules(fname):
             classDays,
             startTime,
             endTime,
-            comment,
-            googleCalendarEventID,
-            interventionLog_id,
             learningLab,
         )
-        # try:
-        #     ...
-        # except Exception as err:
-        #     print(err)
-        #     error = f"""Error processing schedule: <br>
-        #     Processed values when error occurred: <br>
-        #     schoolYear: {schoolYear} <br>
-        #     semester: {semester} <br>
-        #     chattStateANumber: {chattStateANumber} <br>
-        #     campus: {campus} <br>
-        #     className: {className} <br>
-        #     teacherLastName: {teacherLastName} <br>
-        #     staffID: {staffID} <br>
-        #     online: {online} <br>
-        #     indStudy: {indStudy} <br>
-        #     classDays: {classDays} <br>
-        #     startTime: {startTime} <br>
-        #     endTime: {endTime} <br>
-        #     comment: {comment} <br>
-        #     googleCalendarEventID: {googleCalendarEventID} <br>
-        #     interventionLog_id: {interventionLog_id} <br>
-        #     learningLab: {learningLab} <br>
-        #     <br><br>
-        #     {err}"""
-        #     return abort(500, description=error)
+        if duplicateSchedule:
+            print(
+                "Duplicate schedule found:",
+                schoolYear,
+                semester,
+                chattStateANumber,
+                campus,
+                className,
+                teacherLastName,
+                staffID,
+                online,
+                indStudy,
+                classDays,
+                startTime,
+                endTime,
+                learningLab,
+            )
+            duplicate_counter += 1
+        else:
+            addClassSchedule(
+                schoolYear,
+                semester,
+                chattStateANumber,
+                campus,
+                className,
+                teacherLastName,
+                staffID,
+                online,
+                indStudy,
+                classDays,
+                startTime,
+                endTime,
+                comment,
+                googleCalendarEventID,
+                interventionLog_id,
+                learningLab,
+            )
+            new_counter += 1
     db.session.commit()
+    flash(
+        f"{new_counter} schedules added, {duplicate_counter} duplicate schedules ignored",
+        "success",
+    )
     return True
 
 

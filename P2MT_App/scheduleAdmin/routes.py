@@ -101,7 +101,6 @@ def displayScheduleAdmin():
                     "Uploaded_Schedule_File.csv",
                 )
                 uploadSchedules(uploadedScheduleFile)
-                flash("Class schedule upload complete", "success")
                 return redirect(url_for("scheduleAdmin_bp.displayScheduleAdmin"))
     printFormErrors(uploadClassScheduleFormDetails)
     if "submitPropagatelassAttendanceLogs" in request.form:

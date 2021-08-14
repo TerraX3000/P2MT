@@ -6,7 +6,10 @@ from P2MT_App.scheduleAdmin.ScheduleAdmin import addClassSchedule
 from P2MT_App.models import SchoolCalendar, ClassSchedule, Student
 from P2MT_App.main.utilityfunctions import printLogEntry, createListOfDates
 from P2MT_App.main.referenceData import getStudentGoogleCalendar
-from P2MT_App.scheduleAdmin.ScheduleAdmin import addClassAttendanceLog
+from P2MT_App.scheduleAdmin.ScheduleAdmin import (
+    addClassAttendanceLog,
+    getDuplicateSchedule,
+)
 from P2MT_App.googleAPI.googleCalendar import addCalendarEvent, deleteCalendarEvent
 
 
@@ -28,6 +31,25 @@ def addLearningLabTimeAndDays(
     learningLab = learningLabCommonFields[12]
     startDate = learningLabCommonFields[13]
     endDate = learningLabCommonFields[14]
+
+    duplicateSchedule = getDuplicateSchedule(
+        schoolYear,
+        semester,
+        chattStateANumber,
+        campus,
+        className,
+        teacherLastName,
+        staffID,
+        online,
+        indStudy,
+        "".join(classDays),
+        startTime,
+        endTime,
+        learningLab,
+    )
+    if duplicateSchedule:
+        print("duplicate learning lab submitted", locals())
+        return duplicateSchedule
 
     classDaysList = classDays
     classDays = ""
