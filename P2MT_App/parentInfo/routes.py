@@ -3,6 +3,7 @@ from flask_login import login_required
 from P2MT_App import db
 from P2MT_App.models import Parents, Student
 from P2MT_App.main.utilityfunctions import printLogEntry
+from P2MT_App.main.referenceData import getClassYearOfGraduation
 from P2MT_App.p2mtAdmin.p2mtAdmin import downloadParentsList
 
 parentsInfo_bp = Blueprint("parentsInfo_bpInfo_bp", __name__)
@@ -19,7 +20,16 @@ def download_ParentList():
 @login_required
 def displayParents():
     printLogEntry("Running displayParents()")
-    parents = Parents.query.join(Student).order_by(Student.lastName.asc())
+    junior_year_of_graudation = getClassYearOfGraduation("Juniors")
+    senior_year_of_graduation = getClassYearOfGraduation("Seniors")
+    parents = (
+        Parents.query.join(Student)
+        .filter(
+            Student.yearOfGraduation <= junior_year_of_graudation,
+            Student.yearOfGraduation >= senior_year_of_graduation,
+        )
+        .order_by(Student.lastName.asc())
+    )
 
     if request.method == "GET":
         return render_template("parents.html", title="Parent Info", parents=parents,)
