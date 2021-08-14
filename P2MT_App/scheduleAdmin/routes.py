@@ -25,6 +25,7 @@ from P2MT_App.main.referenceData import (
     getStudents,
     getCampusChoices,
     getYearOfGraduation,
+    get_protected_schedules,
 )
 from P2MT_App.scheduleAdmin.ScheduleAdmin import (
     propagateClassSchedule,
@@ -140,12 +141,29 @@ def displayScheduleAdmin():
                 schoolYear = deleteClassScheduleFormDetails.schoolYear.data
                 semester = deleteClassScheduleFormDetails.semester.data
                 yearOfGraduation = deleteClassScheduleFormDetails.yearOfGraduation.data
+                protected_schedule_list = get_protected_schedules()
+
                 print(
-                    "SchoolYear=", schoolYear, " Semester=", semester, yearOfGraduation,
+                    "SchoolYear =",
+                    schoolYear,
+                    " Semester =",
+                    semester,
+                    "yearOfGraduation =",
+                    yearOfGraduation,
                 )
+                year_semester = " ".join([str(schoolYear), semester])
+                if year_semester in protected_schedule_list:
+                    print(
+                        f"The {year_semester} semester schedule is protected and may not be deleted"
+                    )
+                    flash(
+                        f"The {year_semester} semester schedule is protected and may not be deleted",
+                        "error",
+                    )
+                    return redirect(url_for("scheduleAdmin_bp.displayScheduleAdmin"))
                 deleteClassSchedule(schoolYear, semester, yearOfGraduation)
                 deleteClassScheduleFormDetails.confirmDeleteClassSchedule.data = ""
-                # deleteClassScheduleFormDetails.process()
+                deleteClassScheduleFormDetails.process()
                 flash(
                     f"Schedule deleted for {schoolYear} {semester} semester for Class of {yearOfGraduation}",
                     "success",

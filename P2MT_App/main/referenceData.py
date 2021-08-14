@@ -188,13 +188,17 @@ def getCampusChoices():
     )
     return campusValueLabelTupleList
 
+
 def isValidChattStateANumber(chattStateANumber):
     """Validate that the Chatt State A Number is valid. """
-    student = Student.query.filter(Student.chattStateANumber==chattStateANumber).first()
+    student = Student.query.filter(
+        Student.chattStateANumber == chattStateANumber
+    ).first()
     if student:
-        return True 
+        return True
     else:
         return False
+
 
 def getStudentName(chattStateANumber):
     studentTupleList = (
@@ -746,3 +750,28 @@ def getP2mtTemplatesToEdit():
 def getApiKey():
     apikey_json = db.session.query(apiKeys.apiKey).order_by(apiKeys.id.desc()).first()
     return apikey_json[0]
+
+
+def get_protected_schedules():
+    """Return a list of proteceted schedules which cannot be deleted."""
+    printLogEntry("Running get_protected_schedules()")
+
+    current_school_year = getCurrentSchoolYear()
+    current_semester = getCurrentSemester()
+    current_quarter = getCurrentQuarter()
+
+    start_year = 2020
+    year_list = [year for year in range(start_year, current_school_year + 1, 1)]
+    protected_schedule_list = []
+    for year in year_list:
+        if year != current_school_year or (
+            year == current_school_year and current_quarter != 3
+        ):
+            protected_schedule_list.append(" ".join([str(year), "Spring"]))
+        if year != current_school_year or (
+            year == current_school_year and current_quarter == 2
+        ):
+            protected_schedule_list.append(" ".join([str(year), "Fall"]))
+    print(locals())
+
+    return protected_schedule_list
