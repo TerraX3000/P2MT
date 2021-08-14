@@ -33,6 +33,7 @@ from P2MT_App.scheduleAdmin.ScheduleAdmin import (
     downloadClassSchedule,
     downloadClassAttendanceLog,
     addClassSchedule,
+    getDuplicateSchedule,
 )
 from P2MT_App.main.utilityfunctions import save_File
 from P2MT_App.main.utilityfunctions import printLogEntry, printFormErrors
@@ -184,6 +185,25 @@ def displayScheduleAdmin():
                 interventionLog_id,
                 learningLab,
             )
+            duplicateSchedule = getDuplicateSchedule(
+                schoolYear,
+                semester,
+                chattStateANumber,
+                campus,
+                className,
+                teacherLastName,
+                staffID,
+                online,
+                indStudy,
+                "".join(classDays),
+                startTime,
+                endTime,
+                learningLab,
+            )
+            if duplicateSchedule:
+                print("duplicate learning lab submitted", locals())
+                flash("Schedule already exists", "error")
+                return redirect(url_for("scheduleAdmin_bp.displayScheduleAdmin"))
             addClassSchedule(
                 schoolYear,
                 semester,
@@ -203,6 +223,7 @@ def displayScheduleAdmin():
                 learningLab,
             )
             db.session.commit()
+            flash("New schedule added for student", "success")
             return redirect(url_for("scheduleAdmin_bp.displayScheduleAdmin"))
 
     if "submitDownloadClassScheduleForm" in request.form:
