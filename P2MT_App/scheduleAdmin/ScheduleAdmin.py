@@ -526,7 +526,8 @@ def propagateClassSchedule(startDate, endDate, schoolYear, semester):
         )
         .all()
     )
-    print("Total number of rows in classSchedules:", len(classSchedules))
+    number_of_class_schedules = len(classSchedules)
+    print("Total number of rows in classSchedules:", number_of_class_schedules)
     for classSchedule in classSchedules:
         classSchedule_id = classSchedule.id
         online = classSchedule.online
@@ -552,3 +553,4 @@ def propagateClassSchedule(startDate, endDate, schoolYear, semester):
         if meetsOnFriday and not online and not indStudy:
             # print("Friday:", classSchedule_id, classDays)
             addClassAttendanceLog(classSchedule_id, list_of_fridays)
+    return number_of_class_schedules

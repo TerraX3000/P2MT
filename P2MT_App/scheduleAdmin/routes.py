@@ -121,7 +121,13 @@ def displayScheduleAdmin():
                 "endDate=",
                 endDate,
             )
-            propagateClassSchedule(startDate, endDate, schoolYear, semester)
+            number_of_class_schedules = propagateClassSchedule(
+                startDate, endDate, schoolYear, semester
+            )
+            flash(
+                f"Schedules propagated for {number_of_class_schedules} classes.",
+                "success",
+            )
             return redirect(url_for("scheduleAdmin_bp.displayScheduleAdmin"))
     printFormErrors(propagateClassAttendanceLogsFormDetails)
     if "submitDeleteClassScheduleForm" in request.form:
@@ -140,6 +146,10 @@ def displayScheduleAdmin():
                 deleteClassSchedule(schoolYear, semester, yearOfGraduation)
                 deleteClassScheduleFormDetails.confirmDeleteClassSchedule.data = ""
                 # deleteClassScheduleFormDetails.process()
+                flash(
+                    f"Schedule deleted for {schoolYear} {semester} semester for Class of {yearOfGraduation}",
+                    "success",
+                )
                 return redirect(url_for("scheduleAdmin_bp.displayScheduleAdmin"))
             else:
                 deleteClassScheduleFormDetails.confirmDeleteClassSchedule.data = ""
