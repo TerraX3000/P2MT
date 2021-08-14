@@ -57,7 +57,8 @@ def download_DailyAttendanceLog():
 @login_required
 def displayClassAbsenceLog():
     printLogEntry("displayClassAbsenceLog() function called")
-
+    start_of_current_school_year = get_start_of_current_school_year()
+    end_of_current_school_year = get_end_of_current_school_year()
     classAttendanceFixedFields = (
         db.session.query(ClassAttendanceLog, ClassSchedule, DailyAttendanceLog)
         .select_from(ClassAttendanceLog)
@@ -68,7 +69,11 @@ def displayClassAbsenceLog():
             (ClassAttendanceLog.classDate == DailyAttendanceLog.absenceDate)
             & (ClassSchedule.chattStateANumber == DailyAttendanceLog.chattStateANumber),
         )
-        .filter(ClassAttendanceLog.attendanceCode == "U",)
+        .filter(
+            ClassAttendanceLog.attendanceCode == "U",
+            ClassAttendanceLog.classDate >= start_of_current_school_year,
+            ClassAttendanceLog.classDate <= end_of_current_school_year,
+        )
         .order_by(
             ClassAttendanceLog.classDate.desc(),
             Student.lastName,

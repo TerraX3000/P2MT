@@ -19,6 +19,8 @@ from P2MT_App.main.referenceData import (
     getInterventionId,
     getStartTimeChoices,
     getEndTimeChoices,
+    get_start_of_current_school_year,
+    get_end_of_current_school_year,
 )
 from P2MT_App.scheduleAdmin.forms import addSingleClassSchedule
 from P2MT_App.learningLab.forms import addLearningLabToSchedule
@@ -298,11 +300,17 @@ def displayLearningLab():
     print("addLearningLabDetails.errors: ", addLearningLabDetails.errors)
 
     # Get list of learning labs to display on learning lab manager
+    start_of_current_school_year = get_start_of_current_school_year()
+    end_of_current_school_year = get_end_of_current_school_year()
     LearningLabSchedules = (
         db.session.query(ClassSchedule)
         .join(InterventionLog)
         .join(Student)
-        .filter(ClassSchedule.learningLab == True)
+        .filter(
+            ClassSchedule.learningLab == True,
+            InterventionLog.endDate >= start_of_current_school_year,
+            InterventionLog.endDate <= end_of_current_school_year,
+        )
         .order_by(InterventionLog.endDate.desc(), Student.lastName.asc())
     ).all()
 

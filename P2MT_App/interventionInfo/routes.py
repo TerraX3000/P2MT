@@ -4,7 +4,12 @@ from sqlalchemy import and_, not_
 from P2MT_App import db
 from P2MT_App.models import InterventionLog
 from P2MT_App.main.utilityfunctions import printLogEntry
-from P2MT_App.main.referenceData import getInterventionId, getInterventionType
+from P2MT_App.main.referenceData import (
+    getInterventionId,
+    getInterventionType,
+    get_start_of_current_school_year,
+    get_end_of_current_school_year,
+)
 from P2MT_App.interventionInfo.interventionInfo import downloadInterventionLog
 from P2MT_App.learningLab.learningLab import deleteLearningLabFromGoogleCalendar
 
@@ -15,8 +20,12 @@ interventionInfo_bp = Blueprint("interventionInfo_bp", __name__)
 @login_required
 def displayInterventionLogs():
     printLogEntry("Running displayInterventionLogs()")
+    start_of_current_school_year = get_start_of_current_school_year()
+    end_of_current_school_year = get_end_of_current_school_year()
     InterventionLogs = InterventionLog.query.filter(
-        InterventionLog.parentNotification != None
+        InterventionLog.parentNotification != None,
+        InterventionLog.createDate >= start_of_current_school_year,
+        InterventionLog.createDate <= end_of_current_school_year,
     ).order_by(InterventionLog.endDate.desc())
 
     return render_template(
