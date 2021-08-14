@@ -3,6 +3,7 @@ from P2MT_App import db
 from P2MT_App.models import Student, FacultyAndStaff, Parents
 from datetime import datetime, date, time
 from P2MT_App.main.utilityfunctions import printLogEntry, setToNoneIfEmptyString
+from P2MT_App.main.referenceData import getClassYearOfGraduation
 import csv
 import os
 
@@ -81,7 +82,7 @@ def deleteStudent(chattStateANumber):
     return
 
 
-def downloadStudentList():
+def downloadStudentList(exclude_graduates=False):
     printLogEntry("downloadStudentList() function called")
     # Create a CSV output file and append with a timestamp
     output_file_path = os.path.join(current_app.root_path, "static/download")
@@ -107,6 +108,11 @@ def downloadStudentList():
     csvOutputFileRowCount = 0
     # Query Student for student information
     students = Student.query.order_by(Student.yearOfGraduation, Student.lastName)
+    if exclude_graduates:
+        senior_year_of_graduation = getClassYearOfGraduation("Seniors")
+        students = students.filter(
+            Student.yearOfGraduation >= senior_year_of_graduation
+        )
     # Process each record in the query and write to the output file
     for student in students:
         chattStateANumber = student.chattStateANumber

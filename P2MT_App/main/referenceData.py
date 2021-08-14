@@ -1,3 +1,4 @@
+from re import T
 from P2MT_App.models import (
     InterventionType,
     FacultyAndStaff,
@@ -221,27 +222,40 @@ def getStudentFirstNameAndLastName(chattStateANumber):
     return studentFirstName, studentLastName
 
 
-def getStudents():
-    studentTupleList = (
+def getStudents(exclude_graduates=True):
+    base_query = (
         db.session.query(Student.chattStateANumber, Student.firstName, Student.lastName)
         .distinct()
         .order_by(Student.lastName)
-        .all()
     )
+    if exclude_graduates:
+        senior_year_of_graduation = getClassYearOfGraduation("Seniors")
+        studentTupleList = base_query.filter(
+            Student.yearOfGraduation >= senior_year_of_graduation
+        ).all()
+    else:
+        studentTupleList = base_query.all()
     studentTupleList.insert(0, ("", "", ""))
     studentValueLabelTupleList = [
         (item[0], item[1] + " " + item[2]) for item in studentTupleList
     ]
+    print(len(studentValueLabelTupleList))
     return studentValueLabelTupleList
 
 
-def getStudentsById():
-    studentTupleList = (
+def getStudentsById(exclude_graduates=True):
+    base_query = (
         db.session.query(Student.id, Student.firstName, Student.lastName)
         .distinct()
         .order_by(Student.lastName)
-        .all()
     )
+    if exclude_graduates:
+        senior_year_of_graduation = getClassYearOfGraduation("Seniors")
+        studentTupleList = base_query.filter(
+            Student.yearOfGraduation >= senior_year_of_graduation
+        ).all()
+    else:
+        studentTupleList = base_query.all()
     studentTupleList.insert(0, ("", "", ""))
     studentValueLabelTupleList = [
         (item[0], item[1] + " " + item[2]) for item in studentTupleList
