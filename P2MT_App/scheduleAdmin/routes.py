@@ -8,6 +8,7 @@ from flask import (
     send_file,
 )
 from flask_login import login_required
+from P2MT_App import db
 from P2MT_App.scheduleAdmin.forms import (
     uploadClassScheduleForm,
     propagateClassAttendanceLogsForm,
@@ -202,6 +203,7 @@ def displayScheduleAdmin():
                 interventionLog_id,
                 learningLab,
             )
+            db.session.commit()
             return redirect(url_for("scheduleAdmin_bp.displayScheduleAdmin"))
 
     if "submitDownloadClassScheduleForm" in request.form:

@@ -2,6 +2,7 @@ from flask import send_file, current_app, flash, abort
 from P2MT_App import db
 from P2MT_App.models import ClassSchedule, ClassAttendanceLog, SchoolCalendar, Student
 from P2MT_App.main.utilityfunctions import download_File, printLogEntry
+from P2MT_App.main.referenceData import isValidChattStateANumber
 from datetime import datetime, date, time
 import re
 import os
@@ -80,23 +81,60 @@ def addClassSchedule(
     print(classSchedule1)
     print("Learning Lab =", learningLab)
     db.session.add(classSchedule1)
-    db.session.commit()
+    # remove db.session.commit() and handle commit in the calling function
+    # db.session.commit()
     return classSchedule1
 
 
 def uploadSchedules(fname):
     printLogEntry("uploadSchedules() function called")
+    row_template = "year, semester, Chatt_State_A_Number, CSname (optional), firstName (optional),lastName (optional), HSclass (optional),campus, courseNumber (optional),courseName, sectionID (optional),teacher (optional), online (1 if true), indStudy (1 if true),days, times (optional), startTime, endTime, comment (optional),googleCalendarEventID (optional)"
+    correct_row_example_1 = (
+        "2022,Spring,A12345678,,,,,,,Coding,,McCoy,,,MW,,9:30 AM,10:30 AM,,"
+    )
+    correct_row_example_2 = "2021,Fall,A12345678,Tester Smarty,Smarty,Tester,2023,STEM School,,ACT Review English,,Stanley,0,0,MW,1:00 - 2:00,1:00 PM,2:00 PM,az19ac0sc7tdj95os2otm7elv4@google.com,"
+    correct_row_example_3 = "2021,Fall,A00336401,Tester Smarty,Smarty,Tester,2022,Chattanooga State,83985,Calculus 2,MATH 1920 - 130,,,,MTWR,11:00-11:50,11:00 AM,11:50 AM,,by28uf8vdnum9h4ett48n7end4@google.com"
+    error_note = f"""Row Template: {row_template}<br><br>
+                        Note: Common errors include commas within fields, blank time fields, and incorrect Chatt State A Numbers.  Optional fields indicated by adjacent commas are permissable and necesary.  The following examples are valid:<br><br>
+                        Minimum Information:<br> {correct_row_example_1}<br><br>
+                        Typical STEM School Class:<br> {correct_row_example_2}<br><br>
+                        Typical Chatt State Class:<br>{correct_row_example_3}"""
     importCSV = open(fname, "r")
     print(importCSV)
     for row in importCSV:
         print("row=", row)
         column = row.split(",")
+        column_count = len(column)
+        if column_count != 20:
+            if column_count < 20:
+                column_error = "Missing columns"
+            else:
+                column_error = "Extra columns"
+            error = f"""<br><br>Error processing class schedule: {column_error}<br><br>
+                        Submitted Number of Columns: {column_count} <br><br>
+                        Correct Number of Columns: 20<br><br>
+                        Check this row for errors:<br><br>
+                        {row} <br><br>
+                        {error_note}
+                        """
+            print(error)
+            return abort(500, description=error)
         print("column=", column)
         schoolYear = column[0].strip()
         if schoolYear == "year":
             continue
         semester = column[1].strip()
         chattStateANumber = column[2].strip()
+        # validate student
+        if not isValidChattStateANumber(chattStateANumber):
+            error = f"""<br><br>Error processing class schedule: Invalid Chatt State A Number<br><br>
+                        chattStateANumber: {column[2]} <br><br>
+                        Check this row for errors:<br><br>
+                        {row} <br><br>
+                        {error_note}
+                        """
+            print(error)
+            return abort(500, description=error)
         campus = column[7].strip()
         className = column[9].strip()
         teacherLastName = column[11].strip()
@@ -139,16 +177,26 @@ def uploadSchedules(fname):
                     except Exception as err:
                         print(err)
                         flash("Error processing class time")
-                        error = f"""Error processing class time: <br>
-                        Submitted: <br>
-                        chattStateANumber: {column[2]} <br>
-                        startTime: {column[16]} <br>
-                        endTime: {column[17]} <br>
+                        error = f"""<br><br>Error processing class time<br><br>
+                        startTime: {column[16]} <br><br>
+                        endTime: {column[17]} <br><br>
+                        If the startTime and endTime values are blank or do not show what is listed in the CSV file, either there was no data found in those fields or there may be extra commas in the row which are offsetting the import of the correct fields.<br><br>
+                        Check this row for errors:<br><br>
+                        {row} <br><br>
+                        Valid Time Formats:<br><br>
+                        9:30 AM<br><br>
+                        09:30 AM<br><br>
+                        1:30 PM<br><br>
+                        13:30 PM<br><br>
+                        Invalid Time Formats:<br><br>
+                        9:30:00 AM (do not include seconds)<br><br>
+                        {error_note}<br><br>
+                        Time Format Processing Information:<br><br>
                         Failed: %I:%M %p (12-hour clock) as a decimal number.	1, 2, ... 12 <br>
                         Failed: %-I:%M %p (12-hour clock) as a decimal number.	1, 2, ... 12 <br>
                         Failed: %H:%M %p (24-hour clock) as a zero-padded decimal number.	00, 01, ..., 23 <br>
                         Failed: %-H:%M %p (24-hour clock) as a decimal number.	0, 1, ..., 23 <br><br>
-                        {err}"""
+                        """
                         return abort(500, description=error)
         comment = column[18].strip()
         googleCalendarEventID = ""
@@ -198,6 +246,7 @@ def uploadSchedules(fname):
         #     <br><br>
         #     {err}"""
         #     return abort(500, description=error)
+    db.session.commit()
     return True
 
 

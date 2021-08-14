@@ -188,6 +188,13 @@ def getCampusChoices():
     )
     return campusValueLabelTupleList
 
+def isValidChattStateANumber(chattStateANumber):
+    """Validate that the Chatt State A Number is valid. """
+    student = Student.query.filter(Student.chattStateANumber==chattStateANumber).first()
+    if student:
+        return True 
+    else:
+        return False
 
 def getStudentName(chattStateANumber):
     studentTupleList = (

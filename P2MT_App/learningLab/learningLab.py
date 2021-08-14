@@ -69,7 +69,7 @@ def addLearningLabTimeAndDays(
         interventionLog_id,
         learningLab,
     )
-
+    db.session.commit()
     return classSchedule
 
 
