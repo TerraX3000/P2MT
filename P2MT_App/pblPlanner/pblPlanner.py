@@ -2,6 +2,7 @@ from flask import send_file, current_app
 from P2MT_App import db
 from P2MT_App.models import PblEvents, Pbls, PblTeams, Student
 from P2MT_App.main.utilityfunctions import download_File, printLogEntry
+from P2MT_App.main.referenceData import getSchoolYearForQuarter
 from datetime import datetime, date, time
 import re
 import os
@@ -47,7 +48,11 @@ def downloadPblEvents(quarter, eventCategory):
     # Query the PblEvents with a join to include student information
     pblEvents = (
         PblEvents.query.join(Pbls)
-        .filter(Pbls.quarter == quarter, PblEvents.eventCategory == eventCategory)
+        .filter(
+            Pbls.schoolYear == getSchoolYearForQuarter(quarter),
+            Pbls.quarter == quarter,
+            PblEvents.eventCategory == eventCategory,
+        )
         .order_by(Pbls.quarter, PblEvents.eventDate, PblEvents.startTime, Pbls.pblName,)
     )
     # Process each record in the query and write to the output file
@@ -142,7 +147,10 @@ def downloadPblTeams(quarter):
         .select_from(PblTeams)
         .outerjoin(Pbls)
         .join(Student)
-        .filter(PblTeams.quarter == quarter)
+        .filter(
+            Pbls.schoolYear == getSchoolYearForQuarter(quarter),
+            PblTeams.quarter == quarter,
+        )
         .order_by(Pbls.pblName, PblTeams.pblTeamNumber, Student.lastName,)
     )
 
@@ -227,7 +235,11 @@ def downloadPblTeamsAndEventDetails(quarter, eventCategory):
         .join(Pbls)
         .join(Pbls.PblEvents)
         .join(Student)
-        .filter(Pbls.quarter == quarter, PblEvents.eventCategory == eventCategory)
+        .filter(
+            Pbls.schoolYear == getSchoolYearForQuarter(quarter),
+            Pbls.quarter == quarter,
+            PblEvents.eventCategory == eventCategory,
+        )
         .order_by(
             Pbls.quarter,
             PblEvents.eventDate,
@@ -346,12 +358,20 @@ def downloadPblFieldTripInfo(quarter):
     # Query the PblEvents with a join to include student information
     pblKickoffEvents = (
         PblEvents.query.join(Pbls)
-        .filter(Pbls.quarter == quarter, PblEvents.eventCategory == "Kickoff")
+        .filter(
+            Pbls.schoolYear == getSchoolYearForQuarter(quarter),
+            Pbls.quarter == quarter,
+            PblEvents.eventCategory == "Kickoff",
+        )
         .order_by(Pbls.pblName, PblEvents.eventCategory.desc())
     )
     pblFinalEvents = (
         PblEvents.query.join(Pbls)
-        .filter(Pbls.quarter == quarter, PblEvents.eventCategory == "Final")
+        .filter(
+            Pbls.schoolYear == getSchoolYearForQuarter(quarter),
+            Pbls.quarter == quarter,
+            PblEvents.eventCategory == "Final",
+        )
         .order_by(Pbls.pblName, PblEvents.eventCategory.desc())
     )
     pblEvents = zip(pblKickoffEvents, pblFinalEvents)

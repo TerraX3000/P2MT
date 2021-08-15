@@ -583,6 +583,14 @@ def getSchoolYearForSpringSemester():
     return schoolYearForSpringSemester
 
 
+def getSchoolYearForQuarter(quarter):
+    if quarter == 1 or quarter == 2:
+        schoolYearForQuarter = getSchoolYearForFallSemester()
+    elif quarter == 3 or quarter == 4:
+        schoolYearForQuarter = getSchoolYearForSpringSemester()
+    return schoolYearForQuarter
+
+
 def get_start_of_current_school_year():
     """Reture the first day of August for the current school year."""
     start_of_current_school_year = date(getSchoolYearForFallSemester(), 8, 1)
