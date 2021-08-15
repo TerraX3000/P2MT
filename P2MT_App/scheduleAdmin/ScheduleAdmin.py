@@ -122,25 +122,58 @@ def addClassSchedule(
     return classSchedule1
 
 
+def get_html_row(row):
+    """Return an html table row constructed from a string of comma-separated values."""
+    printLogEntry("get_html_row() function called")
+    columns = row.split(",")
+    html_row = "<tr>"
+    for column in columns:
+        html_cell = f"<td>{column}</td>"
+        html_row = html_row + html_cell
+    html_row = html_row + "</tr>"
+    return html_row
+
+
+def get_html_table(*rows):
+    """Return an html table constructed from rows of comma-separated values."""
+    html_table = "<div style='display: block; overflow-x: auto; white-space: nowrap;'><table class='w3-table-all'>"
+    html_rows = ""
+    for row in rows:
+        print(row)
+        html_row = get_html_row(row)
+        html_rows = html_rows + html_row
+    html_table = html_table + html_rows + "</table></div>"
+    return html_table
+
+
 def uploadSchedules(fname):
     printLogEntry("uploadSchedules() function called")
-    row_template = "year, semester, Chatt_State_A_Number, CSname (optional), firstName (optional),lastName (optional), HSclass (optional),campus, courseNumber (optional),courseName, sectionID (optional),teacher (optional), online (1 if true), indStudy (1 if true),days, times (optional), startTime, endTime, comment (optional),googleCalendarEventID (optional)"
+    header_row = "year, semester, Chatt_State_A_Number, CSname (optional), firstName (optional),lastName (optional), HSclass (optional),campus, courseNumber (optional),courseName, sectionID (optional),teacher (optional), online (1 if true), indStudy (1 if true),days, times (optional), startTime, endTime, comment (optional),googleCalendarEventID (optional)"
     correct_row_example_1 = (
-        "2022,Spring,A12345678,,,,,,,Coding,,McCoy,,,MW,,9:30 AM,10:30 AM,,"
+        "2022,Spring,A12345678,,,,,STEM School,,Coding,,McCoy,,,MW,,9:30 AM,10:30 AM,,"
     )
-    correct_row_example_2 = "2021,Fall,A12345678,Tester Smarty,Smarty,Tester,2023,STEM School,,ACT Review English,,Stanley,0,0,MW,1:00 - 2:00,1:00 PM,2:00 PM,az19ac0sc7tdj95os2otm7elv4@google.com,"
-    correct_row_example_3 = "2021,Fall,A00336401,Tester Smarty,Smarty,Tester,2022,Chattanooga State,83985,Calculus 2,MATH 1920 - 130,,,,MTWR,11:00-11:50,11:00 AM,11:50 AM,,by28uf8vdnum9h4ett48n7end4@google.com"
-    error_note = f"""Row Template: {row_template}<br><br>
-                        Note: Common errors include commas within fields, blank time fields, and incorrect Chatt State A Numbers.  Optional fields indicated by adjacent commas are permissable and necesary.  The following examples are valid:<br><br>
-                        Minimum Information:<br> {correct_row_example_1}<br><br>
-                        Typical STEM School Class:<br> {correct_row_example_2}<br><br>
-                        Typical Chatt State Class:<br>{correct_row_example_3}"""
+    correct_row_example_2 = "2021,Fall,A12345678,Tester Smarty,Smarty,Tester,2023,STEM School,,ACT Review English,,Stanley,0,0,MW,1:00 - 2:00,1:00 PM,2:00 PM,,az19ac0sc7tdj95os2otm7elv4@google.com,"
+    correct_row_example_3 = "2021,Fall,A12345678,Tester Smarty,Smarty,Tester,2022,Chattanooga State,83985,Calculus 2,MATH 1920 - 130,,,,MTWR,11:00-11:50,11:00 AM,11:50 AM,,by28uf8vdnum9h4ett48n7end4@google.com"
+    table_of_valid_examples = get_html_table(
+        "Example:,Header Row",
+        header_row,
+        "Example:,Minimum Information",
+        correct_row_example_1,
+        "Example:,Typical STEM School Class",
+        correct_row_example_2,
+        "Example:,Typical Chatt State Class",
+        correct_row_example_3,
+    )
+    error_note = f"""Examples of Valid Rows: <br><br>{table_of_valid_examples}<br><br>
+                        Note: Common errors include commas within fields, blank time fields, and incorrect Chatt State A Numbers.  Optional fields indicated by adjacent commas are permissable and necesary."""
     importCSV = open(fname, "r")
     print(importCSV)
+    row_number = 0
     duplicate_counter = 0
     new_counter = 0
     for row in importCSV:
-        print("row=", row)
+        row_number += 1
+        print(f"row {row_number} = {row}")
         column = row.split(",")
         column_count = len(column)
         if column_count != 20:
@@ -152,7 +185,8 @@ def uploadSchedules(fname):
                         Submitted Number of Columns: {column_count} <br><br>
                         Correct Number of Columns: 20<br><br>
                         Check this row for errors:<br><br>
-                        {row} <br><br>
+                        Row Number: {row_number}<br><br>
+                        {get_html_table(row)}<br><br>
                         {error_note}
                         """
             print(error)
@@ -161,14 +195,27 @@ def uploadSchedules(fname):
         schoolYear = column[0].strip()
         if schoolYear == "year":
             continue
+        elif row_number == 1:
+            error = f"""<br><br>Error processing class schedule: Invalid header row<br><br>
+                        See below for an example of the correct header row.<br><br>
+                        Check this row for errors:<br><br>
+                        Row Number: {row_number}<br><br>
+                        {get_html_table(row)}<br><br>
+                        {error_note}
+                        """
+            print(error)
+            return abort(500, description=error)
         semester = column[1].strip()
         chattStateANumber = column[2].strip()
         # validate student
         if not isValidChattStateANumber(chattStateANumber):
             error = f"""<br><br>Error processing class schedule: Invalid Chatt State A Number<br><br>
+                        This error indicates there is no student with this Chatt State A Number.
+                        It may be necessary to update or add a student with this Chatt State A Number.<br><br>
                         chattStateANumber: {column[2]} <br><br>
                         Check this row for errors:<br><br>
-                        {row} <br><br>
+                        Row Number: {row_number}<br><br>
+                        {get_html_table(header_row, row)}<br><br>
                         {error_note}
                         """
             print(error)
@@ -215,12 +262,13 @@ def uploadSchedules(fname):
                     except Exception as err:
                         print(err)
                         flash("Error processing class time")
-                        error = f"""<br><br>Error processing class time<br><br>
+                        error = f"""<br><br>Error processing class schedule: Invalid class time<br><br>
                         startTime: {column[16]} <br><br>
                         endTime: {column[17]} <br><br>
                         If the startTime and endTime values are blank or do not show what is listed in the CSV file, either there was no data found in those fields or there may be extra commas in the row which are offsetting the import of the correct fields.<br><br>
                         Check this row for errors:<br><br>
-                        {row} <br><br>
+                        Row Number: {row_number}<br><br>
+                        {get_html_table(header_row, row)}<br><br>
                         Valid Time Formats:<br><br>
                         9:30 AM<br><br>
                         09:30 AM<br><br>
