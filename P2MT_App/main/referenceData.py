@@ -797,3 +797,27 @@ def get_protected_schedules():
     print(locals())
 
     return protected_schedule_list
+
+
+def get_protected_pbl_semesters():
+    """Return a list of proteceted semesters for which cannot PBLs be deleted."""
+    printLogEntry("Running get_protected_pbl_semesters()")
+
+    current_school_year = getCurrentSchoolYear()
+    current_semester = getCurrentSemester()
+    current_quarter = getCurrentQuarter()
+
+    start_year = 2020
+    year_list = [year for year in range(start_year, current_school_year + 1, 1)]
+    protected_pbl_semesters_list = []
+    for year in year_list:
+        if year == current_school_year - 1 and current_semester == "Spring":
+            protected_pbl_semesters_list.append(" ".join([str(year), "Spring"]))
+        elif year < current_school_year:
+            protected_pbl_semesters_list.append(" ".join([str(year), "Spring"]))
+            protected_pbl_semesters_list.append(" ".join([str(year), "Fall"]))
+        elif year == current_school_year and current_semester == "Fall":
+            protected_pbl_semesters_list.append(" ".join([str(year), "Spring"]))
+    print(locals())
+
+    return protected_pbl_semesters_list

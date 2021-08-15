@@ -16,6 +16,7 @@ from P2MT_App.main.referenceData import (
     getPblEmailRecipientChoices,
     getPblEmailTemplates,
     getQuarterOrdinal,
+    get_protected_pbl_semesters,
 )
 from P2MT_App.main.utilityfunctions import printFormErrors, printLogEntry
 from P2MT_App.pblPlanner.forms import pblEventEditorForm, pblEditorForm
@@ -812,8 +813,17 @@ def edit_PblEvent(log_id):
 @login_required
 def delete_Pbl(log_id):
     log = Pbls.query.get_or_404(log_id)
-    LogDetails = f"{(log_id)} {log.pblName}"
+    pblYear = log.schoolYear
+    pblSemester = log.semester
+    pbl_year_semester = str(pblYear) + " " + pblSemester
+    LogDetails = f"id: {log_id} pblName: {log.pblName} pblYear: {pblYear} pblSemester: {pblSemester}"
     printLogEntry("Running delete_Pbl(" + LogDetails + ")")
+    protected_pbl_semesters_list = get_protected_pbl_semesters()
+    if pbl_year_semester in protected_pbl_semesters_list:
+        print("Unable to delete PBLs from previous years")
+        print(f"Protected PBL Semesters: {protected_pbl_semesters_list}")
+        flash("Unable to delete PBLs from previous years", "error")
+        return redirect(url_for("pblPlanner_bp.displayStemIIIPblPlanner"))
     # Check whether there are any events associated with the PBL
     events = PblEvents.query.filter(PblEvents.pbl_id == log.id)
     for event in events:
@@ -833,7 +843,17 @@ def delete_Pbl(log_id):
 def delete_PblEvent(log_id):
     log = PblEvents.query.get_or_404(log_id)
     LogDetails = f"{(log_id)} {log.Pbls.pblName} {log.eventCategory}"
+    pblYear = log.Pbls.schoolYear
+    pblSemester = log.Pbls.semester
+    pbl_year_semester = str(pblYear) + " " + pblSemester
+    LogDetails = f"{(log_id)} {log.Pbls.pblName} {log.eventCategory} pblYear: {(pblYear)} pblSemester: {pblSemester}"
     printLogEntry("Running delete_PblEvent(" + LogDetails + ")")
+    protected_pbl_semesters_list = get_protected_pbl_semesters()
+    if pbl_year_semester in protected_pbl_semesters_list:
+        print("Unable to delete PBLs from previous years")
+        print(f"Protected PBL Semesters: {protected_pbl_semesters_list}")
+        flash("Unable to delete PBL events from previous years", "error")
+        return redirect(url_for("pblPlanner_bp.displayStemIIIPblPlanner"))
     # Delete any Google Calendar events associated with the event
     if log.googleCalendarEventID:
         deletePblEventFromCalendar(log.googleCalendarEventID)
