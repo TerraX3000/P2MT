@@ -9,6 +9,8 @@ from flask import (
 )
 from flask_login import login_required
 from P2MT_App import db
+from sqlalchemy import func, literal, union
+from P2MT_App.models import ClassSchedule
 from P2MT_App.scheduleAdmin.forms import (
     uploadClassScheduleForm,
     propagateClassAttendanceLogsForm,
@@ -26,6 +28,8 @@ from P2MT_App.main.referenceData import (
     getCampusChoices,
     getYearOfGraduation,
     get_protected_schedules,
+    getCurrentSchoolYear,
+    getCurrentSemester,
 )
 from P2MT_App.scheduleAdmin.ScheduleAdmin import (
     propagateClassSchedule,
@@ -296,3 +300,74 @@ def displayScheduleAdmin():
         downloadClassAttendanceForm=downloadClassAttendanceFormDetails,
         addSingleClassSchedule=addSingleClassScheduleDetails,
     )
+
+
+@scheduleAdmin_bp.route("/weekly-class-schedules", methods=["GET", "POST"])
+@login_required
+def displayWeeklyClassSchedules():
+    printLogEntry("Running displayWeeklyClassSchedules()")
+
+    current_year = getCurrentSchoolYear()
+    current_semester = getCurrentSemester()
+
+    teacherLastNames = list(getTeachers())
+    teachers = [teacher[0] for teacher in teacherLastNames if teacher[0] != ""]
+
+    days = ["M", "T", "W", "R", "F"]
+
+    db_class_sections_teacher = {}
+    for teacher in teachers:
+        db_class_sections = {}
+        for day in days:
+            db_class_sections_day = (
+                db.session.query(
+                    ClassSchedule.className,
+                    ClassSchedule.startTime,
+                    ClassSchedule.endTime,
+                    literal(day).label("day"),
+                    func.count(ClassSchedule.chattStateANumber).label("totalStudents"),
+                )
+                .filter(
+                    ClassSchedule.teacherLastName == teacher,
+                    ClassSchedule.schoolYear == current_year,
+                    ClassSchedule.semester == current_semester,
+                    ClassSchedule.classDays.contains(day),
+                )
+                .group_by(
+                    ClassSchedule.className,
+                    ClassSchedule.startTime,
+                    ClassSchedule.endTime,
+                )
+            )
+            db_class_sections[day] = db_class_sections_day
+        db_class_sections_teacher[teacher] = db_class_sections
+    hours = [
+        "8:00",
+        "8:30",
+        "9:00",
+        "9:30",
+        "10:00",
+        "10:30",
+        "11:00",
+        "11:30",
+        "12:00",
+        "12:30",
+        "1:00",
+        "1:30",
+        "2:00",
+        "2:30",
+        "3:00",
+        "3:30",
+        "4:00",
+    ]
+    return render_template(
+        "weekly-class-schedules.html",
+        title="Weekly Class Schedules",
+        teachers=teachers,
+        db_class_sections=db_class_sections_teacher,
+        year=current_year,
+        semester=current_semester,
+        days=days,
+        hours=hours,
+    )
+
