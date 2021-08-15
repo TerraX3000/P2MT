@@ -1,7 +1,11 @@
 from flask import send_file, current_app, flash, abort
 from P2MT_App import db
 from P2MT_App.models import ClassSchedule, ClassAttendanceLog, SchoolCalendar, Student
-from P2MT_App.main.utilityfunctions import download_File, printLogEntry
+from P2MT_App.main.utilityfunctions import (
+    download_File,
+    printLogEntry,
+    parse_time_string,
+)
 from P2MT_App.main.referenceData import isValidChattStateANumber
 from datetime import datetime, date, time
 import re
@@ -236,54 +240,39 @@ def uploadSchedules(fname):
             indStudy = False
         classDays = column[14].strip()
         print(column[16].strip())
-        try:  # %I Hour (12-hour clock) as a zero-padded decimal number.	01, 02, ..., 12
-            startTime = datetime.strptime(column[16].strip(), "%I:%M %p").time()
-            endTime = datetime.strptime(column[17].strip(), "%I:%M %p").time()
-            print("%I worked")
-        except:
-            try:  # %-I Hour (12-hour clock) as a decimal number.	1, 2, ... 12
-                startTime = datetime.strptime(column[16].strip(), "%-I:%M %p").time()
-                endTime = datetime.strptime(column[17].strip(), "%-I:%M %p").time()
-                print("%-I worked")
-            except:
-                try:  # %H Hour (24-hour clock) as a zero-padded decimal number.	00, 01, ..., 23
-                    startTime = datetime.strptime(column[16].strip(), "%H:%M %p").time()
-                    endTime = datetime.strptime(column[17].strip(), "%H:%M %p").time()
-                    print("%H worked")
-                except:
-                    try:  # %-H Hour (24-hour clock) as a decimal number.	0, 1, ..., 23
-                        startTime = datetime.strptime(
-                            column[16].strip(), "%-H:%M %p"
-                        ).time()
-                        endTime = datetime.strptime(
-                            column[17].strip(), "%-H:%M %p"
-                        ).time()
-                        print("%-H worked")
-                    except Exception as err:
-                        print(err)
-                        flash("Error processing class time")
-                        error = f"""<br><br>Error processing class schedule: Invalid class time<br><br>
-                        startTime: {column[16]} <br><br>
-                        endTime: {column[17]} <br><br>
-                        If the startTime and endTime values are blank or do not show what is listed in the CSV file, either there was no data found in those fields or there may be extra commas in the row which are offsetting the import of the correct fields.<br><br>
-                        Check this row for errors:<br><br>
-                        Row Number: {row_number}<br><br>
-                        {get_html_table(header_row, row)}<br><br>
-                        Valid Time Formats:<br><br>
-                        9:30 AM<br><br>
-                        09:30 AM<br><br>
-                        1:30 PM<br><br>
-                        13:30 PM<br><br>
-                        Invalid Time Formats:<br><br>
-                        9:30:00 AM (do not include seconds)<br><br>
-                        {error_note}<br><br>
-                        Time Format Processing Information:<br><br>
-                        Failed: %I:%M %p (12-hour clock) as a decimal number.	1, 2, ... 12 <br>
-                        Failed: %-I:%M %p (12-hour clock) as a decimal number.	1, 2, ... 12 <br>
-                        Failed: %H:%M %p (24-hour clock) as a zero-padded decimal number.	00, 01, ..., 23 <br>
-                        Failed: %-H:%M %p (24-hour clock) as a decimal number.	0, 1, ..., 23 <br><br>
-                        """
-                        return abort(500, description=error)
+        try:
+            startTime = parse_time_string(column[16].strip())
+            endTime = parse_time_string(column[17].strip())
+        except Exception as err:
+            print(err)
+            flash("Error processing class time")
+            error = f"""<br><br>Error processing class schedule: Invalid class time<br><br>
+            startTime: {column[16]} <br><br>
+            endTime: {column[17]} <br><br>
+            If the startTime and endTime values are blank or do not show what is listed in the CSV file, either there was no data found in those fields or there may be extra commas in the row which are offsetting the import of the correct fields.<br><br>
+            Check this row for errors:<br><br>
+            Row Number: {row_number}<br><br>
+            {get_html_table(header_row, row)}<br><br>
+            Valid Time Formats:<br><br>
+            9:30 AM<br><br>
+            09:30 AM<br><br>
+            9:30<br><br>
+            09:30<br><br>
+            1:30 PM<br><br>
+            13:30 PM<br><br>
+            13:30 PM<br><br>
+            13:30<br><br>
+            Invalid Time Formats:<br><br>
+            9:30:00 AM (do not include seconds)<br><br>
+            {error_note}<br><br>
+            Time Format Processing Information:<br><br>
+            Failed: %I:%M %p (12-hour clock) as a decimal number.	1, 2, ... 12 <br>
+            Failed: %-I:%M %p (12-hour clock) as a decimal number.	1, 2, ... 12 <br>
+            Failed: %H:%M %p (24-hour clock) as a zero-padded decimal number.	00, 01, ..., 23 <br>
+            Failed: %-H:%M %p (24-hour clock) as a decimal number.	0, 1, ..., 23 <br>
+            Failed: %H:%M (24-hour clock) as a decimal number.	0, 1, ..., 23 <br><br>
+            """
+            return abort(500, description=error)
         comment = column[18].strip()
         googleCalendarEventID = ""
         interventionLog_id = None
