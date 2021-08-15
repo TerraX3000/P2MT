@@ -1,5 +1,6 @@
 from flask import render_template, redirect, request, url_for, flash, Blueprint
 from flask_login import login_required
+from sqlalchemy import or_, and_
 from P2MT_App import db
 from P2MT_App.models import (
     Student,
@@ -18,6 +19,12 @@ from P2MT_App.interventionInfo.forms import addInterventionLogForm
 from P2MT_App.dailyAttendance.forms import addDailyAttendanceForm
 from P2MT_App.main.referenceData import getInterventionTypes, getClassYearOfGraduation
 from P2MT_App.main.utilityfunctions import printLogEntry
+from P2MT_App.main.referenceData import (
+    get_start_of_current_school_year,
+    get_end_of_current_school_year,
+    getSchoolYearForFallSemester,
+    getSchoolYearForSpringSemester,
+)
 from P2MT_App.p2mtAdmin.p2mtAdmin import downloadStudentList
 from datetime import datetime
 
@@ -112,6 +119,9 @@ def displayStudentInfo():
     chattStateANumber = request.args["chattStateANumber"]
     print("chattStateANumber = ", chattStateANumber)
 
+    start_of_current_school_year = get_start_of_current_school_year()
+    end_of_current_school_year = get_end_of_current_school_year()
+
     students = Student.query.filter(
         Student.chattStateANumber == chattStateANumber
     ).order_by(Student.yearOfGraduation.asc(), Student.lastName.asc())
@@ -122,15 +132,26 @@ def displayStudentInfo():
         .order_by(Student.lastName.asc())
     )
 
-    DailyAttendanceLogs = DailyAttendanceLog.query.filter(
-        DailyAttendanceLog.chattStateANumber == chattStateANumber
-    ).order_by(DailyAttendanceLog.absenceDate.desc())
+    DailyAttendanceLogs = (
+        DailyAttendanceLog.query.filter(
+            DailyAttendanceLog.chattStateANumber == chattStateANumber
+        )
+        .filter(
+            DailyAttendanceLog.createDate >= start_of_current_school_year,
+            DailyAttendanceLog.createDate <= end_of_current_school_year,
+        )
+        .order_by(DailyAttendanceLog.absenceDate.desc())
+    )
 
     classAttendanceFixedFields = (
         ClassAttendanceLog.query.filter(ClassAttendanceLog.attendanceCode != "P")
         .filter(ClassSchedule.chattStateANumber == chattStateANumber)
         .join(ClassSchedule)
         .join(ClassSchedule.Student)
+        .filter(
+            ClassAttendanceLog.classDate >= start_of_current_school_year,
+            ClassAttendanceLog.classDate <= end_of_current_school_year,
+        )
         .order_by(
             Student.lastName,
             ClassAttendanceLog.classDate.desc(),
@@ -139,15 +160,37 @@ def displayStudentInfo():
         .all()
     )
 
-    InterventionLogs = InterventionLog.query.filter(
-        InterventionLog.parentNotification != None,
-        InterventionLog.chattStateANumber == chattStateANumber,
-    ).order_by(InterventionLog.endDate.desc())
+    InterventionLogs = (
+        InterventionLog.query.filter(
+            InterventionLog.parentNotification != None,
+            InterventionLog.chattStateANumber == chattStateANumber,
+        )
+        .filter(
+            InterventionLog.createDate >= start_of_current_school_year,
+            InterventionLog.createDate <= end_of_current_school_year,
+        )
+        .order_by(InterventionLog.endDate.desc())
+    )
 
-    ClassSchedules = ClassSchedule.query.filter(
-        ClassSchedule.learningLab == False,
-        ClassSchedule.chattStateANumber == chattStateANumber,
-    ).order_by(ClassSchedule.chattStateANumber.desc())
+    ClassSchedules = (
+        ClassSchedule.query.filter(
+            ClassSchedule.learningLab == False,
+            ClassSchedule.chattStateANumber == chattStateANumber,
+        )
+        .filter(
+            or_(
+                and_(
+                    ClassSchedule.schoolYear == getSchoolYearForFallSemester(),
+                    ClassSchedule.semester == "Fall",
+                ),
+                and_(
+                    ClassSchedule.schoolYear == getSchoolYearForSpringSemester(),
+                    ClassSchedule.semester == "Spring",
+                ),
+            ),
+        )
+        .order_by(ClassSchedule.chattStateANumber.desc())
+    )
 
     LearningLabSchedules = (
         db.session.query(ClassSchedule)
@@ -156,6 +199,16 @@ def displayStudentInfo():
         .filter(
             ClassSchedule.learningLab == True,
             ClassSchedule.chattStateANumber == chattStateANumber,
+            or_(
+                and_(
+                    ClassSchedule.schoolYear == getSchoolYearForFallSemester(),
+                    ClassSchedule.semester == "Fall",
+                ),
+                and_(
+                    ClassSchedule.schoolYear == getSchoolYearForSpringSemester(),
+                    ClassSchedule.semester == "Spring",
+                ),
+            ),
         )
         .order_by(InterventionLog.endDate.desc(), Student.lastName.asc())
     ).all()
