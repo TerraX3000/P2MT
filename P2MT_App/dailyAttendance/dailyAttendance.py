@@ -3,6 +3,10 @@ from flask_login import current_user
 from P2MT_App import db
 from P2MT_App.models import DailyAttendanceLog, Student, FacultyAndStaff, SchoolCalendar
 from P2MT_App.main.utilityfunctions import printLogEntry, createListOfDates
+from P2MT_App.main.referenceData import (
+    get_start_of_current_school_year,
+    get_end_of_current_school_year,
+)
 import csv
 import os
 from datetime import datetime
@@ -62,9 +66,16 @@ def downloadDailyAttendanceLog():
     )
     csvOutputFileRowCount = 0
     # Query for information
+    start_of_current_school_year = get_start_of_current_school_year()
+    end_of_current_school_year = get_end_of_current_school_year()
+
     dailyAttendanceLogs = (
         DailyAttendanceLog.query.join(Student)
         .join(FacultyAndStaff)
+        .filter(
+            DailyAttendanceLog.createDate >= start_of_current_school_year,
+            DailyAttendanceLog.createDate <= end_of_current_school_year,
+        )
         .order_by(Student.lastName)
         .all()
     )

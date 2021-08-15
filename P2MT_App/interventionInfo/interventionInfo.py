@@ -15,6 +15,8 @@ from P2MT_App.main.referenceData import (
     getParentEmails,
     getInterventionType,
     getStudentScheduleLink,
+    get_start_of_current_school_year,
+    get_end_of_current_school_year,
 )
 from P2MT_App.p2mtTemplates.p2mtTemplates import renderEmailTemplate
 from P2MT_App.googleAPI.googleMail import sendEmail
@@ -173,10 +175,16 @@ def downloadInterventionLog():
     )
     csvOutputFileRowCount = 0
     # Query for information
+    start_of_current_school_year = get_start_of_current_school_year()
+    end_of_current_school_year = get_end_of_current_school_year()
     interventionLogs = (
         InterventionLog.query.join(InterventionType)
         .join(Student)
         .join(FacultyAndStaff)
+        .filter(
+            InterventionLog.createDate >= start_of_current_school_year,
+            InterventionLog.createDate <= end_of_current_school_year,
+        )
         .order_by(Student.lastName)
         .all()
     )

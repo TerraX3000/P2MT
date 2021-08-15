@@ -410,7 +410,7 @@ def uploadParentsList(fname):
     return
 
 
-def downloadParentsList():
+def downloadParentsList(exclude_graduates=True):
     printLogEntry("downloadParentsList() function called")
     # Create a CSV output file and append with a timestamp
     output_file_path = os.path.join(current_app.root_path, "static/download")
@@ -443,11 +443,14 @@ def downloadParentsList():
     )
     csvOutputFileRowCount = 0
     # Query Student for student information
-    parentInfo = (
-        Parents.query.join(Student)
-        .order_by(Student.yearOfGraduation, Student.lastName)
-        .all()
+    parentInfo = Parents.query.join(Student).order_by(
+        Student.yearOfGraduation, Student.lastName
     )
+    if exclude_graduates:
+        senior_year_of_graduation = getClassYearOfGraduation("Seniors")
+        parentInfo = parentInfo.filter(
+            Student.yearOfGraduation >= senior_year_of_graduation
+        )
     # Process each record in the query and write to the output file
     for parent in parentInfo:
         chattStateANumber = parent.Student.chattStateANumber
