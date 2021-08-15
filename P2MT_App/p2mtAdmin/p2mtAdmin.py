@@ -82,7 +82,7 @@ def deleteStudent(chattStateANumber):
     return
 
 
-def downloadStudentList(exclude_graduates=False):
+def downloadStudentList(exclude_graduates=True):
     printLogEntry("downloadStudentList() function called")
     # Create a CSV output file and append with a timestamp
     output_file_path = os.path.join(current_app.root_path, "static/download")
