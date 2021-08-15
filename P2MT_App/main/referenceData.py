@@ -13,7 +13,7 @@ from P2MT_App.models import (
     Pbls,
 )
 from P2MT_App import db
-from sqlalchemy import distinct
+from sqlalchemy import distinct, or_, and_
 from datetime import date, timedelta
 from P2MT_App.main.utilityfunctions import printLogEntry, createListOfDates
 
@@ -114,6 +114,18 @@ def getTeachers(campus="STEM School", use_staff_list=False):
         teacherValueLabelTupleList = (
             db.session.query(
                 ClassSchedule.teacherLastName, ClassSchedule.teacherLastName
+            )
+            .filter(
+                or_(
+                    and_(
+                        ClassSchedule.schoolYear == getSchoolYearForFallSemester(),
+                        ClassSchedule.semester == "Fall",
+                    ),
+                    and_(
+                        ClassSchedule.schoolYear == getSchoolYearForSpringSemester(),
+                        ClassSchedule.semester == "Spring",
+                    ),
+                )
             )
             .distinct()
             .order_by(ClassSchedule.teacherLastName)
