@@ -333,6 +333,8 @@ def displayWeeklyClassSchedules():
                     func.count(ClassSchedule.chattStateANumber).label("totalStudents"),
                 )
                 .filter(
+                    ClassSchedule.online == False,
+                    ClassSchedule.indStudy == False,
                     ClassSchedule.teacherLastName == teacher,
                     ClassSchedule.schoolYear == current_year,
                     ClassSchedule.semester == current_semester,
