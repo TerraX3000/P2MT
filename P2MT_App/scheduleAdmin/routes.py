@@ -44,6 +44,8 @@ from P2MT_App.main.utilityfunctions import save_File
 from P2MT_App.main.utilityfunctions import printLogEntry, printFormErrors
 from P2MT_App.main.setupFunctions import extendSchoolCalendarIfNecessary
 
+from datetime import time
+
 scheduleAdmin_bp = Blueprint("scheduleAdmin_bp", __name__)
 
 # Route for direct download from templates folder
@@ -313,10 +315,13 @@ def displayWeeklyClassSchedules():
     teacherLastNames = list(getTeachers())
     teachers = [teacher[0] for teacher in teacherLastNames if teacher[0] != ""]
 
+    normal_start_of_day = time(9, 30)
+
     days = ["M", "T", "W", "R", "F"]
 
     db_class_sections_teacher = {}
     for teacher in teachers:
+        show_early_times = False
         db_class_sections = {}
         for day in days:
             db_class_sections_day = (
@@ -339,8 +344,15 @@ def displayWeeklyClassSchedules():
                     ClassSchedule.endTime,
                 )
             )
+            teacher_has_early_classes = db_class_sections_day.filter(
+                ClassSchedule.startTime < normal_start_of_day
+            ).first()
+            if teacher_has_early_classes:
+                show_early_times = True
             db_class_sections[day] = db_class_sections_day
         db_class_sections_teacher[teacher] = db_class_sections
+        db_class_sections_teacher[teacher]["show_early_times"] = show_early_times
+
     hours = [
         "8:00",
         "8:30",
