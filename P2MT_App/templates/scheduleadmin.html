@@ -12,7 +12,7 @@
     {% endfor %}
   </div>
   {% else %}
-  {{ formfield(class="w3-select  w3-section", id=False) }}
+  {{ formfield(class="w3-select w3-section", id=False) }}
   {% endif %}
 </div>
 {% endmacro %}
@@ -28,7 +28,7 @@
     {% endfor %}
   </div>
   {% else %}
-  {{ formfield(class="w3-check  w3-section") }}
+  {{ formfield(class="w3-check w3-section") }}
   {% endif %}
 </div>
 {% endmacro %}
@@ -121,6 +121,15 @@
       {{ propagateClassAttendanceLogsForm.csrf_token(id = False) }}
       <fieldset class="w3-container w3-padding-large w3-hover-border-green">
         <legend class="w3-xlarge">Propagate Class Attendance Logs</legend>
+        <div class="w3-panel w3-dark-grey">
+          <p>P2MT will only propagate class attendance rosters on Phase II Days.
+            Before propagating schedules for a semester, update the <a href="/schoolcalendar">School Calendar</a> to
+            indicate school
+            break periods and no-class days. Go to Menu <span><i class="fa fa-arrow-right"
+                aria-hidden="true"></i></span> Settings and Admin Tools <span><i class="fa fa-arrow-right"
+                aria-hidden="true"></i></span> School Calendar and uncheck the 'Phase II Day' box for no-class days.
+          </p>
+        </div>
         <div class="w3-row-padding">
           {{ macro_display_formfield(propagateClassAttendanceLogsForm.schoolYear, "w3-half") }}
           {{ macro_display_formfield(propagateClassAttendanceLogsForm.semester, "w3-half") }}
@@ -204,7 +213,7 @@
   </div>
 </div>
 
-<script type="text/javascript" src="{{ url_for('static', filename="js/pageTabs.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/pageTabs.js') }}"></script>
 <!-- Reload page to last loaded tab -->
 <script type='text/javascript'>
   document.addEventListener("DOMContentLoaded", function (event) {
