@@ -63,8 +63,10 @@
       <td>{{ ClassSchedule.online }}</td>
       <td>{{ ClassSchedule.indStudy }}</td>
       <td>{{ ClassSchedule.classDays }}</td>
-      <td>{{ ClassSchedule.startTime.strftime('%-I:%M') }}</td>
-      <td>{{ ClassSchedule.endTime.strftime('%-I:%M') }}</td>
+      <td data-sort="{{ ClassSchedule.startTime.strftime('%H:%M') }}">{{ ClassSchedule.startTime.strftime('%-I:%M %p')
+        }}</td>
+      <td data-sort="{{ ClassSchedule.endTime.strftime('%H:%M') }}">{{ ClassSchedule.endTime.strftime('%-I:%M %p') }}
+      </td>
       <td>{{ ClassSchedule.comment }}</td>
       <td>
         <form action="{{ url_for('masterSchedule_bp.edit_ClassSchedule', log_id=ClassSchedule.id) }}" method="POST">
