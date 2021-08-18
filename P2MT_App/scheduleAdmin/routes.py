@@ -316,12 +316,15 @@ def displayWeeklyClassSchedules():
     teachers = [teacher[0] for teacher in teacherLastNames if teacher[0] != ""]
 
     normal_start_of_day = time(9, 30)
+    no_earlier_than_time = time(8, 0)
 
     days = ["M", "T", "W", "R", "F"]
 
     db_class_sections_teacher = {}
     for teacher in teachers:
+        earliest_class_time = time(16, 30)
         show_early_times = False
+        schedule_warning = ""
         db_class_sections = {}
         for day in days:
             db_class_sections_day = (
@@ -346,14 +349,23 @@ def displayWeeklyClassSchedules():
                     ClassSchedule.endTime,
                 )
             )
+
+            for classSection in db_class_sections_day:
+                if classSection.startTime < no_earlier_than_time:
+                    if classSection.startTime < earliest_class_time:
+                        earliest_class_time = classSection.startTime
+                        schedule_warning = f"Review master schedule for possible error: a class section (not shown below) starts at {earliest_class_time.strftime('%-I:%M %p')}"
+
             teacher_has_early_classes = db_class_sections_day.filter(
-                ClassSchedule.startTime < normal_start_of_day
+                ClassSchedule.startTime < normal_start_of_day,
+                ClassSchedule.startTime >= no_earlier_than_time,
             ).first()
             if teacher_has_early_classes:
                 show_early_times = True
             db_class_sections[day] = db_class_sections_day
         db_class_sections_teacher[teacher] = db_class_sections
         db_class_sections_teacher[teacher]["show_early_times"] = show_early_times
+        db_class_sections_teacher[teacher]["schedule_warning"] = schedule_warning
 
     hours = [
         "8:00",
