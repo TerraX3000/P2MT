@@ -174,7 +174,8 @@ def sendPblEmails(
         )
         if is_render_error:
             flash(
-                "Unable to render email content.  Correct the email template and try again.  Note: some email template variables may not be available for this intervention type.",
+                """Unable to render email content.  Correct the email template and try again.<br>  
+                    Note: some template variables may not be available for this intervention type.""",
                 "error",
             )
             return

@@ -33,7 +33,7 @@ def add_InterventionLog(
     endDate,
     comment,
     tmiMinutes=None,
-    **kwargs
+    **kwargs,
 ):
     printLogEntry("add_InterventionLog() function called")
     print(chattStateANumber, interventionType, interventionLevel, startDate, endDate)
@@ -72,7 +72,7 @@ def sendInterventionEmail(
     startDate,
     endDate,
     comment,
-    **kwargs
+    **kwargs,
 ):
     # Prepare and send intervention notification emails
     interventionType = getInterventionType(intervention_id)
@@ -137,7 +137,8 @@ def sendInterventionEmail(
     )
     if is_render_error:
         flash(
-            "Unable to render email content.  Correct the email template and try again.  Note: some email template variables may not be available for this intervention type.",
+            """Unable to render email content.  Correct the email template and try again.<br>  
+                    Note: some template variables may not be available for this intervention type.""",
             "error",
         )
         return

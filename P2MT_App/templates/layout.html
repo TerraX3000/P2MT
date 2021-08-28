@@ -37,13 +37,13 @@
     <div class="w3-panel w3-padding-24 w3-display-container w3-green">
         <span onclick="this.parentElement.style.display='none'"
             class="w3-button w3-display-left w3-margin-right w3-large">&times</span>
-        <b class="w3-display-middle w3-padding-large">{{ message }}</b>
+        <span class="w3-display-middle w3-padding-large"><b>{{ message | safe }}</b></span>
     </div>
     {% elif category=='error' %}
     <div class="w3-panel w3-padding-24 w3-display-container w3-red ">
         <span onclick="this.parentElement.style.display='none'"
             class="w3-button w3-display-left w3-margin-right w3-large">&times</span>
-        <b class="w3-display-middle w3-padding-large">{{ message }}</b>
+        <span class="w3-display-middle w3-padding-large"><b>{{ message | safe }}</b></span>
     </div>
     {% endif %}
     {% endfor %}
