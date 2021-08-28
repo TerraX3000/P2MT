@@ -6,6 +6,7 @@ from sqlite3 import Connection as SQLite3Connection
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 import pytz
+import os
 
 # Third-party libraries for login authorization and management
 from authlib.integrations.flask_client import OAuth
@@ -72,10 +73,23 @@ def getAdminSettings(adminSettingsDatabase):
     return adminSettings
 
 
+def get_system_warning_message():
+    """Return a warning message to display on the header. For example, display a warning that the system is running on the test environment."""
+    environment = os.getenv("ENV")
+    system_warning_message = ""
+    if environment != "prod":
+        prod_url = "https://p2mt-gltdj2cuiq-ue.a.run.app/"
+        link = f'<a href="{prod_url}">here</a>'
+        system_warning_message = f" Warning: Using the {environment} system. Click {link} to switch to production system. "
+    return system_warning_message
+
+
 def create_app(config_class):
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.jinja_env.globals.update(zip=zip)
+    system_warning_message = get_system_warning_message()
+    app.jinja_env.globals.update(system_warning_message=system_warning_message)
     app.jinja_env.filters["datetimefilter"] = datetimefilter
     # Initialize the database with the app
     db.init_app(app)

@@ -58,11 +58,27 @@
     <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
         <button id="menuButton" class="w3-bar-item w3-button w3-hover-none w3-hover-text-light-grey"
             onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
-        <span class="w3-bar-item w3-right"> <span class="w3-small w3-padding"><a href="/p2mtadmin"
-                    onclick="openP2MTSetup()">
-                    <strong>System Mode = {{ adminSettings['emailModeStatus'] }} </strong></a><span
-                    class="w3-small w3-padding"><a href="/logininfo"><i class="fa fa-user-circle fa-fw"></i>
-                        <strong>{{ session['username'] }} </strong></a></span> P2MT</span>
+
+        <span class="w3-bar-item w3-right">
+
+            <span class="w3-small w3-padding-left w3-yellow">
+                <strong>{{system_warning_message | safe }}</strong>
+            </span>
+
+            <span class="w3-small w3-padding">
+                <a href="/p2mtadmin" onclick="openP2MTSetup()">
+                    <strong>System Mode = {{ adminSettings['emailModeStatus'] }} </strong>
+                </a>
+            </span>
+
+            <span class="w3-small w3-padding">
+                <a href="/logininfo"><i class="fa fa-user-circle fa-fw"></i>
+                    <strong>{{ session['username'] }} </strong>
+                </a>
+            </span>
+
+            <span class="w3-small">P2MT</span>
+        </span>
     </div>
 
     <!-- Sidebar/menu -->
