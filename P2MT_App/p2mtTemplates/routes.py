@@ -97,7 +97,7 @@ def displayTemplates():
                 editTemplateFormDetails.sendToTeacher.data,
             )
             db.session.commit()
-            flash("New template has been added!", "success")
+            flash("Template has been updated!", "success")
             return redirect(url_for("p2mtTemplates_bp.displayTemplates"))
 
     # Return the current template details of the form selected for editing
