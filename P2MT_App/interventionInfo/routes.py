@@ -58,8 +58,8 @@ def delete_InterventionLog(log_id):
                 LogDetails,
                 "(may have been deleted)",
             )
-        db.session.delete(log)
-        db.session.commit()
+    db.session.delete(log)
+    db.session.commit()
     flash("Intervention log has been deleted!", "success")
     return redirect(url_for("interventionInfo_bp.displayInterventionLogs"))
 
