@@ -132,9 +132,15 @@ def sendInterventionEmail(
             "comment": comment,
             "studentScheduleLink": studentScheduleLink,
         }
-    emailSubject, emailContent = renderEmailTemplate(
+    emailSubject, emailContent, is_render_error = renderEmailTemplate(
         template.emailSubject, template.templateContent, templateParams
     )
+    if is_render_error:
+        flash(
+            "Unable to render email content.  Correct the email template and try again.  Note: some email template variables may not be available for this intervention type.",
+            "error",
+        )
+        return
     try:
         email_cc = current_user.email
     except:

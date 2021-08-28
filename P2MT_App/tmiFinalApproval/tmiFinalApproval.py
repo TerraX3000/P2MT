@@ -1,7 +1,7 @@
 from P2MT_App import db
 from datetime import date, datetime
 from sqlalchemy import func
-from flask import send_file, current_app
+from flask import send_file, current_app, flash
 from flask_login import current_user
 import os
 import csv
@@ -321,10 +321,7 @@ def calculateTmi(
                 print("Using template:", template.templateTitle)
             except:
                 print(
-                    "No template exists for interventionType =",
-                    interventionType,
-                    "and interventionLevel =",
-                    interventionLevel,
+                    "No template exists for attendance intervention, level 1, for student notifications"
                 )
         # If sendParentTmiNotification == True, then get email recipient and appropriate email template
         if sendParentTmiNotification and tmiMinutes > 0:
@@ -351,10 +348,7 @@ def calculateTmi(
                 print("Using template:", template.templateTitle)
             except:
                 print(
-                    "No template exists for interventionType =",
-                    interventionType,
-                    "and interventionLevel =",
-                    interventionLevel,
+                    "No template exists for attendance intervention, level 1, for parent notifications"
                 )
         # Render email template with data and send the email
         if (sendStudentTmiNotification or sendParentTmiNotification) and tmiMinutes > 0:
@@ -374,9 +368,15 @@ def calculateTmi(
                 "tmiMinutes": tmiMinutes,
                 "classAttendanceLogList": classAttendanceLogList,
             }
-            emailSubject, emailContent = renderEmailTemplate(
+            emailSubject, emailContent, is_render_error = renderEmailTemplate(
                 template.emailSubject, template.templateContent, templateParams
             )
+            if is_render_error:
+                flash(
+                    "Unable to render email content.  Correct the email template and try again.  Note: some email template variables may not be available for this intervention type.",
+                    "error",
+                )
+                return
             try:
                 email_cc = current_user.email
             except:

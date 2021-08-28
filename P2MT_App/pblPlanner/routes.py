@@ -363,7 +363,6 @@ def emailTeams():
                 selectedEmailRecipients,
                 pblCommunicationsActions,
             )
-            flash("Emails sent!", "success")
         except:
             flash("Error sending email", "error")
     elif pblCommunicationsActions < 0:

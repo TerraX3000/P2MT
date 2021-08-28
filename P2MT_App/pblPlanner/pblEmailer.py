@@ -1,4 +1,5 @@
 from P2MT_App import db
+from flask import flash
 from flask_login import current_user
 from P2MT_App.main.referenceData import getQuarterOrdinal
 from P2MT_App.main.utilityfunctions import printFormErrors, printLogEntry
@@ -87,7 +88,6 @@ def sendPblEmails(
     )
     template = p2mtTemplates.query.get_or_404(emailTemplate)
     print("Email Template:", template.templateTitle)
-
     for pblTeamMember in pblEmailRecipients:
         print(
             "Email recipient:",
@@ -169,9 +169,16 @@ def sendPblEmails(
         }
         templateParams = {**basicParams, **pblTeamParams, **pblParams, **eventParams}
         email_to = pblTeamMember.Student.email
-        emailSubject, emailContent = renderEmailTemplate(
+        emailSubject, emailContent, is_render_error = renderEmailTemplate(
             template.emailSubject, template.templateContent, templateParams
         )
+        if is_render_error:
+            flash(
+                "Unable to render email content.  Correct the email template and try again.  Note: some email template variables may not be available for this intervention type.",
+                "error",
+            )
+            return
+
         try:
             email_cc = current_user.email
         except:
