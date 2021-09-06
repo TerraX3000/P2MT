@@ -7,6 +7,7 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 import pytz
 import os
+from datetime import date, timedelta
 
 # Third-party libraries for login authorization and management
 from authlib.integrations.flask_client import OAuth
@@ -84,6 +85,24 @@ def get_system_warning_message():
     return system_warning_message
 
 
+def get_tmi_reminder_message(SchoolCalendar):
+    """Set TMI reminders for reviewing attendance and sending TMI notifications."""
+    today = date.today()
+    nextTmiDay = (
+        db.session.query(SchoolCalendar.classDate)
+        .filter(SchoolCalendar.classDate >= today, SchoolCalendar.tmiDay == True)
+        .first()[0]
+    )
+    tmi_reminder_message = ""
+    if nextTmiDay - today == timedelta(days=2):
+        tmi_reminder_message = "Reminder: Review attendance for TMI | Lead teacher: send TMI student notifications"
+    if nextTmiDay - today == timedelta(days=1):
+        tmi_reminder_message = (
+            "Reminder: Ask lead teacher to send TMI parent notifications"
+        )
+    return tmi_reminder_message
+
+
 def create_app(config_class):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -114,6 +133,12 @@ def create_app(config_class):
             server_metadata_url=GOOGLE_DISCOVERY_URL,
             client_kwargs={"scope": "openid email profile"},
         )
+
+    from .models import SchoolCalendar
+
+    with app.app_context():
+        tmi_reminder_message = get_tmi_reminder_message(SchoolCalendar)
+    app.jinja_env.globals.update(tmi_reminder_message=tmi_reminder_message)
 
     from .models import adminSettings as adminSettingsDatabase
 
