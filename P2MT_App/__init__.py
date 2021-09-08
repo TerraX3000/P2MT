@@ -100,6 +100,7 @@ def get_tmi_reminder_message(SchoolCalendar):
         tmi_reminder_message = (
             "Reminder: Ask lead teacher to send TMI parent notifications"
         )
+    print("tmi reminder message", today, nextTmiDay, tmi_reminder_message)
     return tmi_reminder_message
 
 
