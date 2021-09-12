@@ -213,7 +213,7 @@ def displayClassAttendanceLog():
     )
     return render_template(
         "classattendancelog.html",
-        title="Class Attendance Log",
+        title="Attendance Log",
         classAttendanceForm=classAttendanceForm,
         classAttendanceFixedFields=classAttendanceFixedFields,
     )

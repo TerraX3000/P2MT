@@ -140,7 +140,6 @@ def create_app(config_class):
     with app.app_context():
         tmi_reminder_message = get_tmi_reminder_message(SchoolCalendar)
     app.jinja_env.globals.update(tmi_reminder_message=tmi_reminder_message)
-    print("post tmi reminder", tmi_reminder_message)
 
     from .models import adminSettings as adminSettingsDatabase
 
