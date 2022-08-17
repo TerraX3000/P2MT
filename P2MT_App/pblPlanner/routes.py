@@ -301,7 +301,6 @@ def displayStemIIITeams():
     )
     pblCommunicationsActions = getPblEmailTemplates()
 
-    print(pblOptions)
     quarterOptions = getQuarterChoices()
     eventCategoryChoices = getPblEventCategoryChoices()
 
@@ -312,7 +311,11 @@ def displayStemIIITeams():
         .outerjoin(Pbls)
         .outerjoin(Pbls.PblEvents)
         .join(Student)
-        .filter(Pbls.quarter == quarter, PblEvents.eventCategory == eventCategory)
+        .filter(
+            Pbls.academicYear == academicYear,
+            Pbls.quarter == quarter,
+            PblEvents.eventCategory == eventCategory,
+        )
         .order_by(
             Pbls.quarter,
             PblEvents.eventDate,
