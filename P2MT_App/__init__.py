@@ -88,20 +88,23 @@ def get_system_warning_message():
 def get_tmi_reminder_message(SchoolCalendar):
     """Set TMI reminders for reviewing attendance and sending TMI notifications."""
     today = date.today()
-    nextTmiDay = (
+    query = (
         db.session.query(SchoolCalendar.classDate)
         .filter(SchoolCalendar.classDate >= today, SchoolCalendar.tmiDay == True)
-        .first()[0]
+        .first()
     )
-    tmi_reminder_message = ""
-    if nextTmiDay - today == timedelta(days=2):
-        tmi_reminder_message = "Reminder: Review attendance for TMI | Lead teacher: send TMI student notifications"
-    if nextTmiDay - today == timedelta(days=1):
-        tmi_reminder_message = (
-            "Reminder: Ask lead teacher to send TMI parent notifications"
-        )
-    print("tmi reminder message", today, nextTmiDay, tmi_reminder_message)
-    return tmi_reminder_message
+    if query:
+        nextTmiDay = query[0]
+        tmi_reminder_message = ""
+        if nextTmiDay - today == timedelta(days=2):
+            tmi_reminder_message = "Reminder: Review attendance for TMI | Lead teacher: send TMI student notifications"
+        if nextTmiDay - today == timedelta(days=1):
+            tmi_reminder_message = (
+                "Reminder: Ask lead teacher to send TMI parent notifications"
+            )
+        print("tmi reminder message", today, nextTmiDay, tmi_reminder_message)
+        return tmi_reminder_message
+    return ""
 
 
 def create_app(config_class):
