@@ -1,20 +1,33 @@
 <!DOCTYPE html>
 <html>
-{% if title %}
-<title>P2MT - {{ title }}</title>
-{% else %}
-<title>P2MT</title>
-{% endif %}
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.24/datatables.min.css" />
-<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.24/datatables.min.js"></script>
+<head>
+    {% if environment == "prod" %}
+    <script type="text/javascript">
+        (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "{{ clarity_id }}");
+    </script>
+    {% endif %}
+    {% if title %}
+    <title>P2MT - {{ title }}</title>
+    {% else %}
+    <title>P2MT</title>
+    {% endif %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 
-<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway"> -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.24/datatables.min.css" />
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.24/datatables.min.js"></script>
+
+    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
 <!-- <style>
     html,
     body,

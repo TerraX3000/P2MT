@@ -114,6 +114,11 @@ def create_app(config_class):
     system_warning_message = get_system_warning_message()
     app.jinja_env.globals.update(system_warning_message=system_warning_message)
     app.jinja_env.filters["datetimefilter"] = datetimefilter
+    environment = os.getenv("ENV")
+    app.jinja_env.globals.update(environment=environment)
+    clarity_id = os.getenv("CLARITY_ID")
+    app.jinja_env.globals.update(clarity_id=clarity_id)
+
     # Initialize the database with the app
     db.init_app(app)
     # Initialize Migrate with the app and the database
