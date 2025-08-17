@@ -99,7 +99,9 @@
       action="{{ url_for('scheduleAdmin_bp.displayScheduleAdmin') }}" enctype="multipart/form-data">
       {{ uploadClassScheduleForm.csrf_token(id = False) }}
       <fieldset class="w3-container w3-padding-large w3-hover-border-green">
-        <legend class="w3-xlarge">Upload Class Schedule</legend>
+        <legend class="w3-xlarge">Upload Class Schedule</legend><div class="w3-panel w3-dark-grey">
+          <p>Important: populate the campus field with "STEM School" for all STEM School classes.</p>
+        </div>
         <div class="w3-row-padding">
           {{ macro_display_formfield(uploadClassScheduleForm.csvClassScheduleFile, "w3-half") }}
         </div>
